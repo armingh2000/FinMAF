@@ -1,4 +1,4 @@
-# Financial Market Analysis Tool
+# Financial Market Analysis and Forecasting Tool
 
 ## Overview
 This project is an end-to-end financial market analysis tool designed to process, analyze, and visualize financial data in real-time. It covers various phases from data processing to web development and deployment.
