@@ -3,7 +3,7 @@ import os
 import sys
 from src.configs import data_pipeline_spark_log_name, data_pipeline_spark_log_path
 
-global org_stderr, org_stdout
+global org_stderr
 
 
 def create_dir(file_path):
@@ -73,7 +73,7 @@ def redirect_stderr(logger):
 
 
 def revert_streams():
-    global org_stderr, org_stdout
+    global org_stderr
     sys.stderr = org_stderr
 
 
