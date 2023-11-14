@@ -18,19 +18,38 @@ else
     # Create Conda environment
     echo "Creating Conda environment..."
     conda create -n $ENV_NAME python=3.11 -y
+
+    # Activate environment
+    echo "Activating the environment..."
+    source $(conda info --base)/etc/profile.d/conda.sh
+    conda activate $ENV_NAME
+
+    # Install Python packages from requirements.txt
+    echo "Installing Python packages..."
+    pip install -r requirements.txt
 fi
 
-# Activate environment
-echo "Activating the environment..."
-source $(conda info --base)/etc/profile.d/conda.sh
-conda activate $ENV_NAME
+# Define the directories
+dir1="../data/historical/hist"
+dir2="../data/historical/stocks"
+dir3="../data/historical/etfs"
 
-# Install Python packages from requirements.txt
-echo "Installing Python packages..."
-pip install -r requirements.txt
-
-# Create necessary directories
 echo "Creating directories..."
-mkdir -p ../data/historical/hist ../data/historical/stocks ../data/historical/etfs
+
+# Function to create directory if it doesn't exist
+create_dir_if_not_exists() {
+    local dir=$1
+    if [ ! -d "$dir" ]; then
+        echo "Creating directory: $dir"
+        mkdir -p "$dir"
+    else
+        echo "Directory already exists: $dir"
+    fi
+}
+
+# Create directories
+create_dir_if_not_exists "$dir1"
+create_dir_if_not_exists "$dir2"
+create_dir_if_not_exists "$dir3"
 
 echo "Setup complete. Conda environment '$ENV_NAME' is ready. Activate it using 'conda activate $ENV_NAME' and run your script."
