@@ -14,6 +14,7 @@
 
 # Remove created directories
 echo "Removing directories..."
-rm -rf ../data/historical/hist ../data/historical/stocks ../data/historical/etfs
+rm -rf ../data/historical
 
-echo "Cleanup complete. Conda environment '$ENV_NAME' and created directories have been removed."
+# echo "Cleanup complete. Conda environment '$ENV_NAME' and created directories have been removed."
+echo "Cleanup complete. Created directories have been removed."
