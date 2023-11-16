@@ -1,30 +1,16 @@
 import logging
 import os
 import sys
-from src.configs import data_pipeline_spark_log_name, data_pipeline_spark_log_path
+from src.utils import mkpath
 
 global org_stderr
-
-
-def create_dir(file_path):
-    """
-    Checks if the parent directories for a given file path exist.
-    If they do not exist, the directories are created.
-    """
-    directory_path = os.path.dirname(file_path)
-
-    if not os.path.exists(directory_path):
-        os.makedirs(directory_path)
-        print(f"Parent directories created for the file: {file_path}")
-    else:
-        print(f"Parent directories already exist for the file: {file_path}")
 
 
 def setup_logger(name, log_file, level=logging.INFO):
     """
     Sets up a logger with a specified name, log file, and level.
     """
-    create_dir(log_file)
+    mkpath(log_file)
 
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -79,7 +65,3 @@ def revert_streams():
 
 # Setup console logger
 log_to_console()
-
-# data_pipeline_spark logger
-# Setup file logger
-dps_logger = setup_logger(data_pipeline_spark_log_name, data_pipeline_spark_log_path)

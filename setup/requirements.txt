@@ -1,2 +1,5 @@
 pandas
 yfinance
+scipy
+pyspark
+tqdm

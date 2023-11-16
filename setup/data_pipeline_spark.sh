@@ -30,9 +30,8 @@ else
 fi
 
 # Define the directories
-dir1="../data/historical/hist"
-dir2="../data/historical/stocks"
-dir3="../data/historical/etfs"
+dir1="../data/historical"
+dir2="../logs"
 
 echo "Creating directories..."
 
@@ -50,6 +49,5 @@ create_dir_if_not_exists() {
 # Create directories
 create_dir_if_not_exists "$dir1"
 create_dir_if_not_exists "$dir2"
-create_dir_if_not_exists "$dir3"
 
 echo "Setup complete. Conda environment '$ENV_NAME' is ready. Activate it using 'conda activate $ENV_NAME' and run your script."

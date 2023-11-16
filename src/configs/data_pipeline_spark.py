@@ -1,4 +1,5 @@
 import datetime
+from .shared import dps_raw
 
 
 def get_beginning_of_month():
@@ -13,7 +14,8 @@ def get_beginning_of_month():
 
 # configs for data_pipeline/spark/
 offset = 0
-limit = 20
+limit = 100
 # Until the first day of the current month
 end_date = get_beginning_of_month()
 yfinance_progress_bar = False
+meta_file_path = dps_raw / "meta_data/"
