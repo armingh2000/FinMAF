@@ -4,7 +4,7 @@ import src.configs as configs
 from tqdm import tqdm
 import pandas as pd
 from pyspark.sql.functions import to_date, col
-from pyspark.sql.types import DoubleType
+from pyspark.sql.types import DoubleType, LongType
 
 
 def dump_nulls(logger, df, file_name, nulls_df):
@@ -24,6 +24,7 @@ def dump_nulls(logger, df, file_name, nulls_df):
                 [nulls_df, temp_df],
                 ignore_index=True,
             )
+    return nulls_df
 
 
 def clean_stock_data(spark, logger):
@@ -41,15 +42,17 @@ def clean_stock_data(spark, logger):
 
             # Ensure correct data types
             df = df.withColumn("Date", to_date(col("Date"), "yyyy-MM-dd"))
-            for col_name in ["Open", "High", "Low", "Close", "Adj Close", "Volume"]:
+            for col_name in ["Open", "High", "Low", "Close", "Adj Close"]:
                 df = df.withColumn(col_name, col(col_name).cast(DoubleType()))
+
+            df = df.withColumn("Volume", col("Volume").cast(LongType()))
 
             # Check for duplicates
             df = df.dropDuplicates(["Date"])
 
             # Handle missing values
             # df = df.na.drop()
-            dump_nulls(logger, df, file_name, nulls_df)
+            nulls_df = dump_nulls(logger, df, file_name, nulls_df)
 
             # Save the cleaned data back to CSV
             cleaned_file_path = os.path.join(configs.dps_clean, f"{file_name}")

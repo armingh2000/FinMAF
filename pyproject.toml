@@ -1,0 +1,9 @@
+[tool.pytest.ini_options]
+#addopts = "-ra -q"
+testpaths = [
+    "tests",
+    "integration_tests",
+]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["*Tests", "Test*"]
+python_functions = ["test_*", "*_test"]
