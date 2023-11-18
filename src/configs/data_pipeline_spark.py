@@ -17,5 +17,7 @@ offset = 0
 limit = 100
 # Until the first day of the current month
 end_date = get_beginning_of_month()
-yfinance_progress_bar = False
+yf_progress_bar = False
+yf_repair = True
+yf_rounding = True
 meta_file_path = dps_raw / "meta_data/"

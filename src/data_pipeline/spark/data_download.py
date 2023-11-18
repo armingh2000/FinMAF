@@ -39,10 +39,10 @@ def save_symbols(symbols, data_clean, logger):
 
         df = yf.download(
             s,
-            repair=True,
+            repair=configs.yf_repair,
             end=configs.end_date,
-            progress=configs.yfinance_progress_bar,
-            rounding=True,
+            progress=configs.yf_progress_bar,
+            rounding=configs.yf_rounding,
         )
 
         if len(df.index) == 0:
@@ -62,6 +62,7 @@ def save_symbols(symbols, data_clean, logger):
         df.loc[corrupted_indices, "Volume"] = df.loc[
             corrupted_indices, "Volume"
         ].round()
+        df["Volume"] = df["Volume"].astype("int64")
 
         is_valid[i] = True
         df.to_csv(configs.dps_raw / f"{s}.csv")
