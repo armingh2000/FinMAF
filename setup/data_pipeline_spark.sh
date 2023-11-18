@@ -17,7 +17,7 @@ if conda info --envs | grep -q $ENV_NAME; then
 else
     # Create Conda environment
     echo "Creating Conda environment..."
-    conda create -n $ENV_NAME python=3.11 -y
+    conda create -n $ENV_NAME -y
 
     # Activate environment
     echo "Activating the environment..."
