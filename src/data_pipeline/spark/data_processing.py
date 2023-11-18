@@ -7,7 +7,7 @@ from pyspark.sql.functions import to_date, col
 from pyspark.sql.types import DoubleType
 
 
-def dump_nulls(spark, logger, df, file_name, nulls_df):
+def dump_nulls(logger, df, file_name, nulls_df):
     logger.info("Dumping null records for further processing.")
 
     # Find rows and columns with null values
@@ -49,10 +49,10 @@ def clean_stock_data(spark, logger):
 
             # Handle missing values
             # df = df.na.drop()
-            dump_nulls(spark, logger, df, file_name, nulls_df)
+            dump_nulls(logger, df, file_name, nulls_df)
 
             # Save the cleaned data back to CSV
-            cleaned_file_path = os.path.join(configs.dps_clean, f"cleaned/{file_name}")
+            cleaned_file_path = os.path.join(configs.dps_clean, f"{file_name}")
             df.write.mode("overwrite").csv(cleaned_file_path, header=True)
             logger.info(f"Cleaned data saved to {cleaned_file_path}")
 
