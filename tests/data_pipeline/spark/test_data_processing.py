@@ -149,3 +149,17 @@ def test_clean_stock_data(mock_logger, mock_configs, spark_session, create_csv_f
     assert set(["test_data1.csv", "test_data2.csv"]).issubset(
         list(nulls_df["file_name"])
     )
+
+
+def test_process(mock_logger, mock_spark_session, mock_clean_stock_data):
+    # Call the process function
+    process(mock_logger)
+
+    # Assert that the appName method was called on the builder
+    mock_spark_session.appName.assert_called_once_with("dps")
+
+    # Assert that getOrCreate was called
+    mock_spark_session.getOrCreate.assert_called_once()
+
+    # Assert that clean_stock_data was called correctly
+    mock_clean_stock_data.assert_called_once_with(mock_spark_session, mock_logger)

@@ -7,6 +7,7 @@ import src.configs as configs
 import pytest
 from unittest.mock import Mock
 import shutil
+from src.data_pipeline.spark.data_processing import clean_stock_data
 
 
 @pytest.fixture(scope="session")
@@ -96,3 +97,29 @@ def mock_configs(monkeypatch, tmp_path):
 @pytest.fixture
 def mock_logger():
     return Mock()
+
+
+# Mock for SparkSession
+@pytest.fixture
+def mock_spark_session(monkeypatch):
+    # Create mocks for SparkSession and its builder
+    mock_builder = Mock()
+    mock_builder.appName.return_value = mock_builder
+    mock_builder.getOrCreate.return_value = mock_builder
+
+    # Patch the SparkSession builder
+    monkeypatch.setattr("pyspark.sql.SparkSession.builder", mock_builder)
+
+    return mock_builder
+
+
+# Mock for clean_stock_data
+@pytest.fixture
+def mock_clean_stock_data(monkeypatch):
+    # Mock clean_stock_data function
+    mock_function = Mock()
+    monkeypatch.setattr(
+        "src.data_pipeline.spark.data_processing.clean_stock_data",
+        mock_function,
+    )
+    return mock_function
