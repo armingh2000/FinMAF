@@ -102,7 +102,7 @@ def test_clean_stock_data(mock_logger, mock_configs, spark_session, create_csv_f
             StructField("High", DoubleType(), True),
             StructField("Low", DoubleType(), True),
             StructField("Close", DoubleType(), True),
-            StructField("Adj_close", DoubleType(), True),
+            StructField("Adj close", DoubleType(), True),
             StructField("Volume", LongType(), True),
             StructField("Repaired?", BooleanType(), True),
         ]
@@ -127,7 +127,7 @@ def test_clean_stock_data(mock_logger, mock_configs, spark_session, create_csv_f
         ("High", "double"),
         ("Low", "double"),
         ("Close", "double"),
-        ("Adj_close", "double"),
+        ("Adj close", "double"),
         ("Volume", "bigint"),
         ("Repaired?", "boolean"),
     ]
@@ -138,7 +138,7 @@ def test_clean_stock_data(mock_logger, mock_configs, spark_session, create_csv_f
         ("High", "double"),
         ("Low", "double"),
         ("Close", "double"),
-        ("Adj_close", "double"),
+        ("Adj close", "double"),
         ("Volume", "bigint"),
         ("Repaired?", "boolean"),
     ]

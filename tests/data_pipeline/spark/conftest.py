@@ -7,7 +7,6 @@ import src.configs as configs
 import pytest
 from unittest.mock import Mock
 import shutil
-from src.data_pipeline.spark.data_processing import clean_stock_data
 
 
 @pytest.fixture(scope="session")
