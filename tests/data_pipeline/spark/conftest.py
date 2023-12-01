@@ -54,19 +54,6 @@ def mock_yf_download(monkeypatch):
     monkeypatch.setattr(yf, "download", Mock(side_effect=yf_download_side_effect))
 
 
-@pytest.fixture
-def mock_configs(monkeypatch, tmp_path):
-    # Use monkeypatch to replace yf.download with the mock function
-    dps_raw = Path(tmp_path / "raw/")
-    dps_raw.mkdir()
-    meta_file_path = Path(tmp_path / "raw/meta_data/")
-    meta_file_path.mkdir()
-    monkeypatch.setattr(configs, "limit", 3)
-    monkeypatch.setattr(configs, "offset", 1)
-    monkeypatch.setattr(configs, "dps_raw", dps_raw)
-    monkeypatch.setattr(configs, "meta_file_path", meta_file_path)
-
-
 @pytest.fixture(scope="session")
 def spark_session():
     spark = SparkSession.builder.appName("test").getOrCreate()
@@ -138,17 +125,6 @@ def create_csv_files(tmp_path, clean_tmp_path, mock_configs, mkdirs):
 def mkdirs(mock_configs):
     configs.dps_raw.mkdir(exist_ok=True)
     configs.dps_clean.mkdir(exist_ok=True)
-
-
-@pytest.fixture
-def mock_configs(monkeypatch, tmp_path):
-    # Use monkeypatch to replace yf.download with the mock function
-    dps_raw = Path(tmp_path / "raw/")
-    dps_raw.mkdir(exist_ok=True)
-    dps_clean = Path(tmp_path / "clean/")
-    dps_clean.mkdir(exist_ok=True)
-    monkeypatch.setattr(configs, "dps_raw", dps_raw)
-    monkeypatch.setattr(configs, "dps_clean", dps_clean)
 
 
 @pytest.fixture

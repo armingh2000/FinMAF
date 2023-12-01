@@ -6,7 +6,6 @@ from src.data_pipeline.spark.data_processing import (
 import pandas as pd
 import src.configs as configs
 import os
-import shutil
 from pyspark.sql.functions import col
 from pyspark.sql.types import (
     StructType,
@@ -16,6 +15,19 @@ from pyspark.sql.types import (
     LongType,
     BooleanType,
 )
+import pytest
+from pathlib import Path
+
+
+@pytest.fixture
+def mock_configs(monkeypatch, tmp_path):
+    # Use monkeypatch to replace yf.download with the mock function
+    dps_raw = Path(tmp_path / "raw/")
+    dps_raw.mkdir(exist_ok=True)
+    dps_clean = Path(tmp_path / "clean/")
+    dps_clean.mkdir(exist_ok=True)
+    monkeypatch.setattr(configs, "dps_raw", dps_raw)
+    monkeypatch.setattr(configs, "dps_clean", dps_clean)
 
 
 def test_dump_nulls(mock_logger, mock_configs, spark_session):

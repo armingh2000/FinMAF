@@ -1,8 +1,22 @@
 from src.data_pipeline.spark.data_download import download_symbols, save_symbols
 from unittest.mock import Mock
 import pandas as pd
-
+import pytest
 import src.configs as configs
+from pathlib import Path
+
+
+@pytest.fixture
+def mock_configs(monkeypatch, tmp_path):
+    # Use monkeypatch to replace yf.download with the mock function
+    dps_raw = Path(tmp_path / "raw/")
+    dps_raw.mkdir()
+    meta_file_path = Path(tmp_path / "raw/meta_data/")
+    meta_file_path.mkdir()
+    monkeypatch.setattr(configs, "limit", 3)
+    monkeypatch.setattr(configs, "offset", 1)
+    monkeypatch.setattr(configs, "dps_raw", dps_raw)
+    monkeypatch.setattr(configs, "meta_file_path", meta_file_path)
 
 
 def test_successful_data_retrieval_and_filtering(monkeypatch, logger):
