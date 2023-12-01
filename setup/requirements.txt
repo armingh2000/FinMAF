@@ -1,0 +1,6 @@
+pandas
+yfinance
+scipy
+pyspark
+tqdm
+pytest
