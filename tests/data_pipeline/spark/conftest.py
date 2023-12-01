@@ -4,9 +4,67 @@ import csv
 from pyspark.sql import SparkSession
 from pathlib import Path
 import src.configs as configs
-import pytest
 from unittest.mock import Mock
 import shutil
+import pandas as pd
+import yfinance as yf
+
+
+@pytest.fixture(scope="module")
+def logger():
+    return Mock()
+
+
+@pytest.fixture(scope="module")
+def symbols():
+    symbols = ["AA", "ABEO", "AB", "ACONW", "AC"]  # ACONW should fail
+    return symbols
+
+
+@pytest.fixture(scope="module")
+def data_clean(symbols):
+    return pd.DataFrame(
+        {
+            "Symbol": symbols,
+        }
+    )
+
+
+@pytest.fixture()
+def mock_yf_download(monkeypatch):
+    # Define a side effect function for yf.download
+    def yf_download_side_effect(symbol, *args, **kwargs):
+        if symbol == "AA":
+            # Return a DataFrame for AAPL
+            return pd.DataFrame({"Volume": [1000, 2000, 1500]})
+        elif symbol == "AB":
+            # Return a DataFrame for MSFT
+            return pd.DataFrame({"Volume": [3000.3, 4000, 3500]})
+        elif symbol == "ABEO":
+            # Return a DataFrame for MSFT
+            return pd.DataFrame({"Volume": [300, 4000.4, 3500]})
+        elif symbol == "AC":
+            # Return a DataFrame for MSFT
+            return pd.DataFrame({"Volume": [3000, 4000, 3500]})
+        else:
+            # Return an empty DataFrame for other symbols
+            return pd.DataFrame()
+
+    # Use monkeypatch to replace yf.download with the mock function
+    monkeypatch.setattr(yf, "download", Mock(side_effect=yf_download_side_effect))
+
+
+@pytest.fixture
+def mock_configs(monkeypatch, tmp_path):
+    # Use monkeypatch to replace yf.download with the mock function
+    dps_raw = Path(tmp_path / "raw/")
+    dps_raw.mkdir()
+    meta_file_path = Path(tmp_path / "raw/meta_data/")
+    meta_file_path.mkdir()
+    monkeypatch.setattr(configs, "limit", 3)
+    monkeypatch.setattr(configs, "offset", 1)
+    monkeypatch.setattr(configs, "dps_raw", dps_raw)
+    monkeypatch.setattr(configs, "meta_file_path", meta_file_path)
 
 
 @pytest.fixture(scope="session")

@@ -23,6 +23,8 @@ This directory contains scripts for setting up the environment required for runn
     cd setup
     ```
 
+    *Always run setup scripts from within setup directory*
+
 3. **Make the Script Executable**: 
 
     ```bash

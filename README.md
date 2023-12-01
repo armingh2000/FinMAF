@@ -19,9 +19,19 @@ This project is an end-to-end financial market analysis tool designed to process
 - [Other relevant technologies]
 
 ### Installation
-1. Clone the repository
+1. Clone the repository  
 `git clone https://github.com/armingh2000/FinMAF.git`
-2. [Installation steps]
+
+2. Add **absolute path** of project root to python path  
+`export PYTHONPATH="${PYTHONPATH}:/absolute/path/to/FinMAF"`
+
+3. CD to setup dir  
+`cd FinMAF/setup`
+
+4. Run setup scripts (*Remember to always run the setup scripts from within the setup directory*)
+    - Data preperation setup scripts  
+    `chmod +x data_pipeline_spark.sh`  
+    `./data_pipeline_spark.sh`
 
 ### Usage
 - [Instructions on how to use the tool]
