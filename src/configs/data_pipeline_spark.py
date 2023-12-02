@@ -14,7 +14,7 @@ def get_beginning_of_month():
 
 # configs for data_pipeline/spark/
 offset = 0
-limit = 100
+limit = None
 # Until the first day of the current month
 end_date = get_beginning_of_month()
 yf_progress_bar = False

@@ -37,13 +37,26 @@ def save_symbols(symbols, data_clean, logger):
     for i in tqdm(range(configs.offset, end)):
         s = symbols[i]
 
-        df = yf.download(
-            s,
-            repair=configs.yf_repair,
-            end=configs.end_date,
-            progress=configs.yf_progress_bar,
-            rounding=configs.yf_rounding,
-        )
+        attempts = 0
+        while attempts < 3:
+            try:
+                df = yf.download(
+                    s,
+                    repair=configs.yf_repair,
+                    end=configs.end_date,
+                    progress=configs.yf_progress_bar,
+                    rounding=configs.yf_rounding,
+                )
+
+            except KeyError:
+                # Increment the attempt counter if a KeyError occurs
+                logger.error(f"KeyError occurred for {s}")
+                attempts += 1
+                if attempts == 3:
+                    break
+
+            else:
+                break
 
         if len(df.index) == 0:
             is_failed[i] = True

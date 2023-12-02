@@ -13,6 +13,26 @@ from pyspark.sql.types import (
     LongType,
     BooleanType,
 )
+from pyspark.sql.window import Window
+from pyspark.sql.functions import last
+
+
+def fill_null_values(df):
+    """
+    Fills null values in the DataFrame by carrying forward the last known value.
+
+    :param df: Input Spark DataFrame
+    :return: DataFrame with null values filled
+    """
+
+    window_spec = Window.orderBy("Date").rowsBetween(Window.unboundedPreceding, 0)
+
+    for col_name in ["Open", "High", "Low", "Close", "Adj Close", "Volume"]:
+        df = df.withColumn(
+            col_name, last(df[col_name], ignorenulls=True).over(window_spec)
+        )
+
+    return df
 
 
 def dump_nulls(logger, df, file_name, nulls_df):
@@ -64,6 +84,11 @@ def clean_stock_data(spark, logger):
 
             # Ensure correct data types
             df = df.withColumn("Date", to_date(col("Date"), "yyyy-MM-dd"))
+
+            # Sort the DataFrame by date
+            df = df.sort("Date")
+
+            # Cast columns to correct data types
             for col_name in ["Open", "High", "Low", "Close", "Adj Close"]:
                 df = df.withColumn(col_name, col(col_name).cast(DoubleType()))
 
@@ -74,6 +99,7 @@ def clean_stock_data(spark, logger):
 
             # Handle missing values
             # df = df.na.drop()
+            df = fill_null_values(df)
             nulls_df = dump_nulls(logger, df, file_name, nulls_df)
 
             # Save the cleaned data back to CSV
@@ -90,6 +116,9 @@ def process(logger):
     # Initialize Spark Session
     logger.info("Starting Spark Session...")
     spark = SparkSession.builder.appName("dps").getOrCreate()
+
+    # Get the logger and set the logging level
+    spark.sparkContext.setLogLevel("ERROR")
 
     clean_stock_data(spark, logger)
 
