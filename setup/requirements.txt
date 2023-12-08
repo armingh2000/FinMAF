@@ -4,3 +4,5 @@ scipy
 pyspark
 tqdm
 pytest
+transformers
+torch
