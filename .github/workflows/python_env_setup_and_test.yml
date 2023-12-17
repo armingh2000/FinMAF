@@ -39,6 +39,10 @@ jobs:
           source ./.venv/bin/activate
           pip install -r setup/requirements.txt
 
+      - name: Add project directory to PYTHONPATH
+        run: |
+          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
       - name: Run tests
         run: |
           source ./.venv/bin/activate
