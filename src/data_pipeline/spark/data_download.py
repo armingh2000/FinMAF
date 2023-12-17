@@ -1,7 +1,6 @@
 import pandas as pd
 import yfinance as yf
 import src.configs as configs
-from src.utils import mkpath
 from tqdm import tqdm
 
 # silent SettingWithCopyWarning
