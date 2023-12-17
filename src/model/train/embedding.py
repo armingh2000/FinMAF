@@ -4,7 +4,9 @@ from tqdm import tqdm
 from sklearn.decomposition import PCA
 
 
-def get_embedding_input(metadata):
+def get_embedding_input(metadata, logger):
+    logger.info("Getting embedding dictionary for BERT input ...")
+
     inputs = {}
 
     for _, row in tqdm(metadata.iterrows()):
@@ -13,10 +15,22 @@ def get_embedding_input(metadata):
     return inputs
 
 
-def reduce_dimensions(embeddings, n_components=50):
+def perform_pca(embeddings, logger, n_components):
+    import numpy as np
+
+    logger.info("Preparing embeddings for PCA ...")
+    stocks = list(embeddings.keys())
+    embeddings = [embeddings[stock] for stock in stocks]
+    embeddings = np.array(embeddings).squeeze()
+
+    logger.info("Performing PCA ...")
     pca = PCA(n_components=n_components)
     reduced_embeddings = pca.fit_transform(embeddings)
-    return reduced_embeddings
+
+    logger.info("Generating embedding dictionary ...")
+    result = {stocks[i]: reduced_embeddings[i] for i in range(len(stocks))}
+
+    return result
 
 
 class EmbeddingModel:
@@ -42,10 +56,13 @@ class EmbeddingModel:
             return cls_hidden_state
 
 
-def get_embeddings(embedding_inputs):
+def get_embeddings(embedding_inputs, logger):
     embeddings = {}
+
+    logger.info("Loading BERT model for embeddings ...")
     embedding_model = EmbeddingModel()
 
+    logger.info("Getting embeddings ...")
     for symbol, description in tqdm(embedding_inputs.items()):
         embeddings[symbol] = embedding_model(symbol, description)
 
