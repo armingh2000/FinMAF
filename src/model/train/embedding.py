@@ -8,14 +8,7 @@ def get_embedding_input(metadata):
     inputs = {}
 
     for _, row in tqdm(metadata.iterrows()):
-        if row["Symbol"] == "":
-            inputs["NA"] = row["Security Name"]
-        else:
-            inputs[row["Symbol"]] = row["Security Name"]
-
-        # region This is the original code
-        # inputs[row["Symbol"]] = row["Security Name"]
-        # endregion
+        inputs[row["Symbol"]] = row["Security Name"]
 
     return inputs
 
