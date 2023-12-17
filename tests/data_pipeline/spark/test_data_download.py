@@ -24,7 +24,7 @@ def test_successful_data_retrieval_and_filtering(monkeypatch, logger):
     test_data = pd.DataFrame(
         {
             "Test Issue": ["N", "Y", "N", "N"],
-            "NASDAQ Symbol": ["AAPL", "GOOGL", "MSFT$", "AMZN"],
+            "Symbol": ["AAPL", "GOOGL", "MSFT$", "AMZN"],
         }
     )
     monkeypatch.setattr(pd, "read_csv", Mock(return_value=test_data))
@@ -43,7 +43,7 @@ def test_correct_handling_of_non_alphabetic_symbols(monkeypatch, logger):
     test_data = pd.DataFrame(
         {
             "Test Issue": ["N", "N", "N", "N"],
-            "NASDAQ Symbol": ["AAPL", "1234", "MSFT$", "AMZN"],
+            "Symbol": ["AAPL", "1234", "MSFT$", "AMZN"],
         }
     )
     monkeypatch.setattr(pd, "read_csv", Mock(return_value=test_data))
@@ -52,8 +52,8 @@ def test_correct_handling_of_non_alphabetic_symbols(monkeypatch, logger):
     _, data_clean = download_symbols(logger)
 
     assert all(
-        data_clean["NASDAQ Symbol"].apply(lambda x: x.isalpha())
-    ), "All NASDAQ Symbols should be strictly alphabetic"
+        data_clean["Symbol"].apply(lambda x: x.isalpha())
+    ), "All Symbols should be strictly alphabetic"
 
 
 def test_save_symbols(symbols, logger, data_clean, mock_configs, mock_yf_download):
