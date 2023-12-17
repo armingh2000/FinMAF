@@ -11,7 +11,7 @@ def download_symbols(logger):
     data = pd.read_csv(
         "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqtraded.txt",
         sep="|",
-        dtype={"Symbol": str, "NASDAQ Symbol": str},
+        dtype={"Symbol": str, "Symbol": str},
         keep_default_na=False,  # This prevents Pandas from interpreting "NA" as NaN
     )
     data_clean = data[data["Test Issue"] == "N"]

@@ -5,8 +5,8 @@ from src.utils import mkpath
 
 
 def separate_ETFs_and_Stocks(valid_data):
-    etfs = valid_data[valid_data["ETF"] == "Y"]["NASDAQ Symbol"].tolist()
-    stocks = valid_data[valid_data["ETF"] == "N"]["NASDAQ Symbol"].tolist()
+    etfs = valid_data[valid_data["ETF"] == "Y"]["Symbol"].tolist()
+    stocks = valid_data[valid_data["ETF"] == "N"]["Symbol"].tolist()
 
     move_symbols(etfs, configs.dps_raw / "etfs")
     move_symbols(stocks, configs.dps_raw / "stocks")
