@@ -6,3 +6,4 @@ tqdm
 pytest
 transformers
 torch
+h5py
