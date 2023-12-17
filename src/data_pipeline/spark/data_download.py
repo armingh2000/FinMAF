@@ -10,17 +10,20 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 def download_symbols(logger):
     data = pd.read_csv(
-        "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqtraded.txt", sep="|"
+        "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqtraded.txt",
+        sep="|",
+        dtype={"Symbol": str, "NASDAQ Symbol": str},
+        keep_default_na=False,  # This prevents Pandas from interpreting "NA" as NaN
     )
     data_clean = data[data["Test Issue"] == "N"]
-    data_clean["NASDAQ Symbol"] = data_clean["NASDAQ Symbol"].astype(str)
+
     # remove symbols with signs
     data_clean.drop(
-        data_clean[data_clean["NASDAQ Symbol"].apply(lambda x: not x.isalpha())].index,
+        data_clean[data_clean["Symbol"].apply(lambda x: not x.isalpha())].index,
         inplace=True,
     )
 
-    symbols = data_clean["NASDAQ Symbol"].tolist()
+    symbols = data_clean["Symbol"].tolist()
     logger.info(
         "total number of symbols traded after filtering = {}".format(len(symbols))
     )
