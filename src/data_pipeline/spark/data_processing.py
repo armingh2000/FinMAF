@@ -5,14 +5,6 @@ from tqdm import tqdm
 import pandas as pd
 from pyspark.sql.functions import to_date, col
 from pyspark.sql.types import DoubleType, LongType
-from pyspark.sql.types import (
-    StructType,
-    StructField,
-    DateType,
-    DoubleType,
-    LongType,
-    BooleanType,
-)
 from pyspark.sql.window import Window
 from pyspark.sql.functions import last
 
@@ -59,20 +51,6 @@ def clean_stock_data(spark, logger):
     # Initialize an empty DataFrame to store results
     nulls_df = pd.DataFrame(columns=["file_name", "column_with_null", "row_index"])
 
-    # Define the schema
-    schema = StructType(
-        [
-            StructField("Date", DateType(), True),
-            StructField("Open", DoubleType(), True),
-            StructField("High", DoubleType(), True),
-            StructField("Low", DoubleType(), True),
-            StructField("Close", DoubleType(), True),
-            StructField("Adj close", DoubleType(), True),
-            StructField("Volume", LongType(), True),
-            StructField("Repaired?", BooleanType(), True),
-        ]
-    )
-
     # Iterate over each file in the directory
     for file_name in tqdm(os.listdir(configs.dps_raw)):
         if file_name.endswith(".csv"):
@@ -80,7 +58,7 @@ def clean_stock_data(spark, logger):
             logger.info(f"Cleaning {file_name}...")
 
             # Read CSV file into Spark DataFrame
-            df = spark.read.csv(file_path, header=True, schema=schema)
+            df = spark.read.csv(file_path, header=True, schema=configs.data_schema)
 
             # Ensure correct data types
             df = df.withColumn("Date", to_date(col("Date"), "yyyy-MM-dd"))
