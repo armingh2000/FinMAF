@@ -28,6 +28,19 @@ def mock_configs(monkeypatch, tmp_path):
     dps_clean.mkdir(exist_ok=True)
     monkeypatch.setattr(configs, "dps_raw", dps_raw)
     monkeypatch.setattr(configs, "dps_clean", dps_clean)
+    data_schema = StructType(
+        [
+            StructField("Date", DateType(), True),
+            StructField("Open", DoubleType(), True),
+            StructField("High", DoubleType(), True),
+            StructField("Low", DoubleType(), True),
+            StructField("Close", DoubleType(), True),
+            StructField("Adj close", DoubleType(), True),
+            StructField("Volume", LongType(), True),
+            StructField("Repaired?", BooleanType(), True),
+        ]
+    )
+    monkeypatch.setattr(configs, "data_schema", data_schema)
 
 
 def test_dump_nulls(mock_logger, mock_configs, spark_session):
@@ -107,18 +120,7 @@ def test_clean_stock_data(mock_logger, mock_configs, spark_session, create_csv_f
     assert os.path.exists(configs.dps_clean / "nulls.csv")
 
     # Define the schema
-    schema = StructType(
-        [
-            StructField("Date", DateType(), True),
-            StructField("Open", DoubleType(), True),
-            StructField("High", DoubleType(), True),
-            StructField("Low", DoubleType(), True),
-            StructField("Close", DoubleType(), True),
-            StructField("Adj close", DoubleType(), True),
-            StructField("Volume", LongType(), True),
-            StructField("Repaired?", BooleanType(), True),
-        ]
-    )
+    schema = configs.data_schema
 
     # Check for removal of duplicates
     test_df1_path = os.path.join(configs.dps_clean, "test_data1.csv")
