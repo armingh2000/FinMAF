@@ -4,3 +4,6 @@ scipy
 pyspark
 tqdm
 pytest
+transformers
+torch
+h5py
