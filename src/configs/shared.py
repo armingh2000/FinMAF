@@ -24,7 +24,7 @@ data_schema = StructType(
         StructField("High", DoubleType(), True),
         StructField("Low", DoubleType(), True),
         StructField("Close", DoubleType(), True),
-        StructField("Adj close", DoubleType(), True),
+        StructField("Adj Close", DoubleType(), True),
         StructField("Volume", LongType(), True),
         StructField("Repaired?", BooleanType(), True),
     ]
