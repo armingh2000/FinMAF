@@ -28,8 +28,8 @@ class StockHistoryDataset(Dataset):
 
     def preprocess_data(self):
         data = []
-        time_features = ["Year", "Month_sin", "Month_cos", "Day_sin", "Day_cos"]
-        stock_features = [
+        time_cols = ["Year_Scaled", "Month_sin", "Month_cos", "Day_sin", "Day_cos"]
+        stock_cols = [
             "Open_Scaled",
             "High_Scaled",
             "Low_Scaled",
@@ -37,7 +37,8 @@ class StockHistoryDataset(Dataset):
             "Adj Close_Scaled",
             "Volume_Scaled",
         ]
-        features = time_features + stock_features
+        row_cols = time_cols + stock_cols
+        seq_cols = [f + "_seq" for f in row_cols]
 
         for symbol in self.metadata["Symbol"]:
             file_path = os.path.join(self.stock_history_dir, f"{symbol}.csv")
@@ -53,21 +54,21 @@ class StockHistoryDataset(Dataset):
                 .rowsBetween(-self.sequence_length, -1)
             )
 
-            for col_name in df.columns:
-                if col_name[-7:] == "_scaled" or col_name in features:
-                    df = df.withColumn(
-                        col_name + "_seq", collect_list(col_name).over(window)
-                    )
-
-            # Complete all DataFrame operations before converting to RDD
-            df = df.select([col for col in df.columns if col[-4:] == "_seq"])
+            for col_name in row_cols:
+                df = df.withColumn(
+                    col_name + "_seq", collect_list(col_name).over(window)
+                )
 
             # Convert to an RDD for generating sequences
-            rdd = df.rdd.map(lambda row: (np.array(row), row[-1]))
+            rdd = df.rdd.map(
+                lambda row: (
+                    [row[col] for col in seq_cols],
+                    [row[col] for col in row_cols],
+                )
+            )
 
             # Collect sequences and targets
-            sequences = rdd.map(lambda x: (x[0], x[1])).collect()[1:]
-            sequences = [(s[0], np.array(s[1][-1])) for s in sequences]
+            sequences = rdd.collect()[1:]
             data.extend(sequences)
 
         return data
@@ -84,7 +85,7 @@ class StockHistoryDataset(Dataset):
         df = df.withColumn("Day_cos", cos(2 * np.pi * dayofmonth("Date") / 31))
 
         # Normalize numerical features
-        for col in ["Open", "High", "Low", "Close", "Adj Close", "Volume"]:
+        for col in ["Open", "High", "Low", "Close", "Adj Close", "Volume", "Year"]:
             # Convert column to a vector
             assembler = VectorAssembler(inputCols=[col], outputCol=col + "_Vec")
             df = assembler.transform(df)
