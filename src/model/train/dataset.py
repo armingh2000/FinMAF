@@ -19,8 +19,24 @@ class StockHistoryDataset(Dataset):
         self.pca_embeddings = pca_embeddings
         self.stock_history_dir = configs.dps_clean
         self.sequence_length = sequence_length
-        self.spark = SparkSession.builder.appName("StockHistoryDataset").getOrCreate()
+        self.spark = (
+            SparkSession.builder.appName("StockHistoryDataset")
+            .config(
+                "spark.eventLog.gcMetrics.youngGenerationGarbageCollectors",
+                "G1 Young Generation",
+            )
+            .config(
+                "spark.eventLog.gcMetrics.oldGenerationGarbageCollectors",
+                "G1 Old Generation",
+            )
+            .getOrCreate()
+        )
+        self.init_udfs()
         self.data = self.preprocess_data()
+
+    def init_udfs(self):
+        # UDF to extract the first element of a vector
+        self.first_element = udf(lambda v: float(v[0]), DoubleType())
 
     def preprocess_data(self):
         data = []
@@ -45,7 +61,7 @@ class StockHistoryDataset(Dataset):
 
             # Create sequences using a sliding window approach
             window = (
-                Window.partitionBy()
+                Window.partitionBy("Year_Scaled")
                 .orderBy("Date")
                 .rowsBetween(-self.sequence_length, -1)
             )
