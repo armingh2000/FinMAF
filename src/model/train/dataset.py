@@ -10,6 +10,7 @@ import src.configs as configs
 from pyspark.sql.functions import collect_list
 from pyspark.sql.functions import udf
 from pyspark.sql.types import DoubleType
+from tqdm import tqdm
 
 
 class StockHistoryDataset(Dataset):
@@ -19,12 +20,7 @@ class StockHistoryDataset(Dataset):
         self.stock_history_dir = configs.dps_clean
         self.sequence_length = sequence_length
         self.spark = SparkSession.builder.appName("StockHistoryDataset").getOrCreate()
-        self.init_udfs()
         self.data = self.preprocess_data()
-
-    def init_udfs(self):
-        # UDF to extract the first element of a vector
-        self.first_element = udf(lambda v: float(v[0]), DoubleType())
 
     def preprocess_data(self):
         data = []
@@ -40,7 +36,7 @@ class StockHistoryDataset(Dataset):
         row_cols = time_cols + stock_cols
         seq_cols = [f + "_seq" for f in row_cols]
 
-        for symbol in self.metadata["Symbol"]:
+        for symbol in tqdm(self.metadata["Symbol"]):
             file_path = os.path.join(self.stock_history_dir, f"{symbol}.csv")
             df = self.spark.read.csv(file_path, header=True, schema=configs.data_schema)
 
