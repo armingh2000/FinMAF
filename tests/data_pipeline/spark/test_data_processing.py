@@ -35,7 +35,7 @@ def mock_configs(monkeypatch, tmp_path):
             StructField("High", DoubleType(), True),
             StructField("Low", DoubleType(), True),
             StructField("Close", DoubleType(), True),
-            StructField("Adj close", DoubleType(), True),
+            StructField("Adj Close", DoubleType(), True),
             StructField("Volume", LongType(), True),
             StructField("Repaired?", BooleanType(), True),
         ]
@@ -141,7 +141,7 @@ def test_clean_stock_data(mock_logger, mock_configs, spark_session, create_csv_f
         ("High", "double"),
         ("Low", "double"),
         ("Close", "double"),
-        ("Adj close", "double"),
+        ("Adj Close", "double"),
         ("Volume", "bigint"),
         ("Repaired?", "boolean"),
     ]
@@ -152,7 +152,7 @@ def test_clean_stock_data(mock_logger, mock_configs, spark_session, create_csv_f
         ("High", "double"),
         ("Low", "double"),
         ("Close", "double"),
-        ("Adj close", "double"),
+        ("Adj Close", "double"),
         ("Volume", "bigint"),
         ("Repaired?", "boolean"),
     ]
