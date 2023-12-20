@@ -14,11 +14,11 @@ from tqdm import tqdm
 
 
 class StockHistoryDataset(Dataset):
-    def __init__(self, metadata, pca_embeddings, sequence_length=60):
+    def __init__(self, metadata, pca_embeddings):
         self.metadata = metadata
         self.pca_embeddings = pca_embeddings
         self.stock_history_dir = configs.dps_clean
-        self.sequence_length = sequence_length
+        self.lstm_sequence_length = configs.lstm_sequence_length
         self.spark = (
             SparkSession.builder.appName("StockHistoryDataset")
             .config(
@@ -32,7 +32,11 @@ class StockHistoryDataset(Dataset):
             .getOrCreate()
         )
         self.init_udfs()
-        self.data = self.preprocess_data()
+
+        self.data = self.load_data()
+        if not self.data:
+            self.data = self.preprocess_data()
+            self.dump_data()
 
     def init_udfs(self):
         # UDF to extract the first element of a vector
@@ -63,7 +67,7 @@ class StockHistoryDataset(Dataset):
             window = (
                 Window.partitionBy("Year_Scaled")
                 .orderBy("Date")
-                .rowsBetween(-self.sequence_length, -1)
+                .rowsBetween(-self.lstm_sequence_length, -1)
             )
 
             for col_name in row_cols:
@@ -124,7 +128,7 @@ class StockHistoryDataset(Dataset):
     def __getitem__(self, idx):
         sequence, target = self.data[
             idx
-        ]  # sequence.shape = (11, sequence_length), target.shape = (11, 1)
+        ]  # sequence.shape = (11, lstm_sequence_length), target.shape = (11, 1)
 
         symbol = self.metadata.iloc[idx]["Symbol"]
         sequence_embedding = self.pca_embeddings[symbol]
@@ -135,8 +139,8 @@ class StockHistoryDataset(Dataset):
             torch.tensor(target, dtype=torch.float),
         )
 
+    def dump_data(self):
+        pass
 
-# Usage
-# metadata = ...  # Load your metadata DataFrame
-# pca_embeddings = ...  # Load your PCA embeddings
-# dataset = StockHistoryDataset(metadata, pca_embeddings)
+    def load_data(self):
+        pass
