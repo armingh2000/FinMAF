@@ -74,8 +74,8 @@ class StockHistoryDataset(Dataset):
             # Convert to an RDD for generating sequences
             rdd = df.rdd.map(
                 lambda row: (
-                    [row[col] for col in seq_cols],
-                    [row[col] for col in row_cols],
+                    np.array([row[col] for col in seq_cols]),
+                    np.array([row[col] for col in row_cols]),
                 )
             )
 
@@ -122,14 +122,17 @@ class StockHistoryDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        sequence, target = self.data[idx]
-        # sequence.shape = (n, 11, sequence_length)
-        symbol = sequence[0, 0]  # Assuming the first column is 'Symbol'
+        sequence, target = self.data[
+            idx
+        ]  # sequence.shape = (11, sequence_length), target.shape = (11, 1)
+
+        symbol = self.metadata.iloc[idx]["Symbol"]
         sequence_embedding = self.pca_embeddings[symbol]
+
         return (
             torch.tensor(sequence_embedding, dtype=torch.float),
-            torch.tensor(sequence[:, 1:], dtype=torch.float),  # Exclude 'Symbol' column
-            torch.tensor(target[1:], dtype=torch.float),  # Exclude 'Symbol' column
+            torch.tensor(sequence, dtype=torch.float),
+            torch.tensor(target, dtype=torch.float),
         )
 
 

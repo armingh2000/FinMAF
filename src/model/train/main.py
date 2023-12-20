@@ -8,9 +8,8 @@ from dataset import StockHistoryDataset
 if __name__ == "__main__":
     # setup logger
     logger = setup_logger(configs.embedding_log_name, configs.embedding_log_path)
-    # logger = setup_logger("temp", "/tmp/test.log")
 
-    # # get stock metadata
+    # get stock metadata
     metadata = get_stock_metadata(logger)
 
     # # get embeddings input for bert
