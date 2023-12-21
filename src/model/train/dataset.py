@@ -12,6 +12,7 @@ from pyspark.sql.functions import udf
 from pyspark.sql.types import DoubleType
 from tqdm import tqdm
 from utils import dump_dataset_data, load_dataset_data
+from src.utils import mkpath
 
 
 class StockHistoryDataset(Dataset):
@@ -23,18 +24,16 @@ class StockHistoryDataset(Dataset):
         self.lstm_sequence_length = configs.lstm_sequence_length
 
         self.logger.info("Creating Spark session ...")
+        mkpath(configs.mt_spark_log_path)
         self.spark = (
             SparkSession.builder.appName("StockHistoryDataset")
-            .config(
-                "spark.eventLog.gcMetrics.youngGenerationGarbageCollectors",
-                "G1 Young Generation",
-            )
-            .config(
-                "spark.eventLog.gcMetrics.oldGenerationGarbageCollectors",
-                "G1 Old Generation",
-            )
+            .config("spark.eventLog.enabled", "true")
+            .config("spark.eventLog.dir", configs.mt_spark_log_path)
+            .config("spark.executor.extraJavaOptions", "-XX:+UseParallelGC")
+            .config("spark.driver.extraJavaOptions", "-XX:+UseParallelGC")
             .getOrCreate()
         )
+
         self.init_udfs()
 
         self.data = self.load_data()
