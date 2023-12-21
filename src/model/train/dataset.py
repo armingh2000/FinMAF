@@ -15,11 +15,14 @@ from utils import dump_dataset_data, load_dataset_data
 
 
 class StockHistoryDataset(Dataset):
-    def __init__(self, metadata, pca_embeddings):
+    def __init__(self, metadata, pca_embeddings, logger):
         self.metadata = metadata
         self.pca_embeddings = pca_embeddings
+        self.logger = logger
         self.stock_history_dir = configs.dps_clean
         self.lstm_sequence_length = configs.lstm_sequence_length
+
+        self.logger.info("Creating Spark session ...")
         self.spark = (
             SparkSession.builder.appName("StockHistoryDataset")
             .config(
@@ -44,6 +47,8 @@ class StockHistoryDataset(Dataset):
         self.first_element = udf(lambda v: float(v[0]), DoubleType())
 
     def preprocess_data(self):
+        self.logger.info("Preprocessing dataset data ...")
+
         data = []
         time_cols = ["Year_Scaled", "Month_sin", "Month_cos", "Day_sin", "Day_cos"]
         stock_cols = [
@@ -141,10 +146,19 @@ class StockHistoryDataset(Dataset):
         )
 
     def dump_data(self):
+        self.logger.info("Dumping dataset data ...")
         dump_dataset_data(self.data)
 
     def load_data(self):
+        self.logger.info("Loading dataset data ...")
+
         if not os.path.exists(configs.embedding_dataset_data_path):
+            self.logger.info(
+                f"Filepath {configs.embedding_dataset_data_path} does not exist. Making a new dataset ..."
+            )
             return None
 
+        self.logger.info(
+            f"Loading dataset data from {configs.embedding_dataset_data_path}"
+        )
         return load_dataset_data()

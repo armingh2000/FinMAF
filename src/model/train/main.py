@@ -10,7 +10,7 @@ if __name__ == "__main__":
     logger = setup_logger(configs.embedding_log_name, configs.embedding_log_path)
 
     # get stock metadata
-    metadata = get_stock_metadata(logger)
+    metadata = get_stock_metadata(logger)[:5]
 
     # # get embeddings input for bert
     # embedding_inputs = get_embedding_input(metadata, logger)
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     logger.info("Loading PCA embeddings ...")
     pca_embeddings = load_embeddings(configs.pca_embedding_path)
 
-    dataset = StockHistoryDataset(metadata, pca_embeddings)
+    dataset = StockHistoryDataset(metadata, pca_embeddings, logger)
 
     # revert std streams
     revert_streams()
