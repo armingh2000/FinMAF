@@ -11,6 +11,7 @@ from pyspark.sql.functions import collect_list
 from pyspark.sql.functions import udf
 from pyspark.sql.types import DoubleType
 from tqdm import tqdm
+from utils import dump_dataset_data, load_dataset_data
 
 
 class StockHistoryDataset(Dataset):
@@ -140,7 +141,10 @@ class StockHistoryDataset(Dataset):
         )
 
     def dump_data(self):
-        pass
+        dump_dataset_data(self.data)
 
     def load_data(self):
-        pass
+        if not os.path.exists(configs.embedding_dataset_data_path):
+            return None
+
+        return load_dataset_data()

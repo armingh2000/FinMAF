@@ -2,6 +2,7 @@ import h5py
 import numpy as np
 from src.utils import mkpath
 import os
+import src.configs as configs
 
 
 def dump_embeddings(embeddings, filepath):
@@ -26,21 +27,21 @@ def load_embeddings(filepath):
 
 
 def dump_dataset_data(data):
-    with h5py.File("your_data.h5", "w") as hdf:
-        for i, (array1, array2) in enumerate(data):
+    with h5py.File(configs.embedding_dataset_data_path, "w") as hdf:
+        for i, (sequence, target) in enumerate(data):
             group = hdf.create_group(f"tuple_{i}")
-            group.create_dataset("array1", data=array1)
-            group.create_dataset("array2", data=array2)
+            group.create_dataset("sequence", data=sequence)
+            group.create_dataset("target", data=target)
 
 
 def load_dataset_data():
     loaded_data = []
 
-    with h5py.File("your_data.h5", "r") as hdf:
+    with h5py.File(configs.embedding_dataset_data_path, "r") as hdf:
         for group_name in hdf:
             group = hdf[group_name]
-            array1 = np.array(group["array1"])
-            array2 = np.array(group["array2"])
-            loaded_data.append((array1, array2))
+            sequence = np.array(group["sequence"])
+            target = np.array(group["target"])
+            loaded_data.append((sequence, target))
 
     return loaded_data
