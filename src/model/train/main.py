@@ -38,6 +38,10 @@ if __name__ == "__main__":
     # logger.info("Loading PCA embeddings ...")
     # pca_embeddings = load_embeddings(configs.pca_embedding_path)
 
+    logger = setup_logger(configs.normalize_log_name, configs.normalize_log_path)
+
+    # Creating Spark Session
+    logger.info("Creating Spark session ...")
     spark = (
         SparkSession.builder.appName("StockHistoryDataset")
         .config("spark.eventLog.enabled", "true")
@@ -47,6 +51,7 @@ if __name__ == "__main__":
         .getOrCreate()
     )
 
+    # Saving normalized dataset to CSV files
     logger.info("Dumping normalized dataset ...")
     dump_normalized_dataset(metadata, spark, logger)
 

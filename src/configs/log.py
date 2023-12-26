@@ -9,3 +9,5 @@ dps_process_log_path = project_root / "logs/dps_process.log"
 # Model Train Logging Configurations
 embedding_log_name = "mt_embedding"
 embedding_log_path = project_root / "logs/mt_embedding.log"
+normalize_log_name = "mt_normalize"
+normalize_log_path = project_root / "logs/mt_normalize.log"
