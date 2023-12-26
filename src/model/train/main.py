@@ -47,7 +47,8 @@ if __name__ == "__main__":
         .getOrCreate()
     )
 
-    dump_normalized_dataset(metadata, spark)
+    logger.info("Dumping normalized dataset ...")
+    dump_normalized_dataset(metadata, spark, logger)
 
     # dataset = StockHistoryDataset(metadata, pca_embeddings, logger)
 

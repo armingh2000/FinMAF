@@ -49,12 +49,13 @@ def normalize_and_create_features(df):
     return df
 
 
-def dump_normalized_dataset(metadata, spark):
+def dump_normalized_dataset(metadata, spark, logger):
     for symbol in tqdm(metadata["Symbol"]):
         file_path = os.path.join(configs.dps_clean, f"{symbol}.csv")
         df = spark.read.csv(file_path, header=True, schema=configs.data_schema)
 
         # Normalize and create cyclic features
+        logger.info(f"Normalizing and creating features for {symbol} ...")
         df = normalize_and_create_features(df)
 
         # Dump normalized data to CSV
