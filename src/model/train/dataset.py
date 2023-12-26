@@ -3,13 +3,9 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import sin, cos, month, dayofmonth, year
 from pyspark.sql.window import Window
-from pyspark.ml.feature import MinMaxScaler, VectorAssembler
 import src.configs as configs
 from pyspark.sql.functions import collect_list
-from pyspark.sql.functions import udf
-from pyspark.sql.types import DoubleType
 from tqdm import tqdm
 from utils import dump_dataset_data, load_dataset_data
 from src.utils import mkpath
@@ -40,10 +36,6 @@ class StockHistoryDataset(Dataset):
         if not self.data:
             self.data = self.preprocess_data()
             self.dump_data()
-
-    def init_udfs(self):
-        # UDF to extract the first element of a vector
-        self.first_element = udf(lambda v: float(v[0]), DoubleType())
 
     def preprocess_data(self):
         self.logger.info("Preprocessing dataset data ...")
@@ -93,39 +85,6 @@ class StockHistoryDataset(Dataset):
             data.extend(sequences)
 
         return data
-
-    def normalize_and_create_features(
-        self,
-        df,
-    ):
-        # Adding time features
-        df = df.withColumn("Year", year("Date"))
-        df = df.withColumn("Month_sin", sin(2 * np.pi * month("Date") / 12))
-        df = df.withColumn("Month_cos", cos(2 * np.pi * month("Date") / 12))
-        df = df.withColumn("Day_sin", sin(2 * np.pi * dayofmonth("Date") / 31))
-        df = df.withColumn("Day_cos", cos(2 * np.pi * dayofmonth("Date") / 31))
-
-        # Normalize numerical features
-        for col in ["Open", "High", "Low", "Close", "Adj Close", "Volume", "Year"]:
-            # Convert column to a vector
-            assembler = VectorAssembler(inputCols=[col], outputCol=col + "_Vec")
-            df = assembler.transform(df)
-
-            # Apply MinMaxScaler
-            scaler = MinMaxScaler(
-                inputCol=col + "_Vec", outputCol=col + "_Scaled_Value"
-            )
-            scaler_model = scaler.fit(df)
-            df = scaler_model.transform(df)
-
-            # Drop the original and vector columns, keep the scaled one
-            # df = df.drop(col).drop(col + "_Vec").withColumnRenamed(col + "_Scaled", col)
-            df = df.withColumn(
-                col + "_Scaled", self.first_element(col + "_Scaled_Value")
-            )
-            df = df.drop(col + "_Vec").drop(col + "_Scaled_Value")
-
-        return df
 
     def __len__(self):
         return len(self.data)
