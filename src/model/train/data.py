@@ -5,6 +5,8 @@ from pyspark.ml.feature import MinMaxScaler, VectorAssembler
 from pyspark.sql.functions import udf
 from pyspark.sql.types import DoubleType
 import numpy as np
+import os
+from tqdm import tqdm
 
 
 def get_stock_metadata(logger):
@@ -45,3 +47,16 @@ def normalize_and_create_features(df):
         df = df.drop(col + "_Vec").drop(col + "_Scaled_Value")
 
     return df
+
+
+def dump_normalized_dataset(metadata, spark):
+    for symbol in tqdm(metadata["Symbol"]):
+        file_path = os.path.join(configs.dps_clean, f"{symbol}.csv")
+        df = spark.read.csv(file_path, header=True, schema=configs.data_schema)
+
+        # Normalize and create cyclic features
+        df = normalize_and_create_features(df)
+
+        # Dump normalized data to CSV
+        normalized_file_path = os.path.join(configs.mt_normalized, f"{symbol}.csv")
+        df.write.mode("overwrite").csv(normalized_file_path, header=True)

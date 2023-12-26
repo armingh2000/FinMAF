@@ -29,3 +29,4 @@ data_schema = StructType(
         StructField("Repaired?", BooleanType(), True),
     ]
 )
+mt_normalized = project_root / "data/historical/normalized/"

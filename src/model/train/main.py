@@ -1,16 +1,17 @@
-from data import get_stock_metadata
+from data import get_stock_metadata, dump_normalized_dataset
 from embedding import get_embeddings, get_embedding_input, perform_pca
 from utils import dump_embeddings, load_embeddings
 import src.configs as configs
 from src.log import setup_logger, revert_streams
 from dataset import StockHistoryDataset
+from pyspark.sql import SparkSession
 
 if __name__ == "__main__":
     # setup logger
     logger = setup_logger(configs.embedding_log_name, configs.embedding_log_path)
 
     # get stock metadata
-    metadata = get_stock_metadata(logger)[:5]
+    metadata = get_stock_metadata(logger)
 
     # # get embeddings input for bert
     # embedding_inputs = get_embedding_input(metadata, logger)
@@ -34,10 +35,21 @@ if __name__ == "__main__":
     # dump_embeddings(pca_embeddings, configs.pca_embedding_path)
 
     # load embeddings
-    logger.info("Loading PCA embeddings ...")
-    pca_embeddings = load_embeddings(configs.pca_embedding_path)
+    # logger.info("Loading PCA embeddings ...")
+    # pca_embeddings = load_embeddings(configs.pca_embedding_path)
 
-    dataset = StockHistoryDataset(metadata, pca_embeddings, logger)
+    spark = (
+        SparkSession.builder.appName("StockHistoryDataset")
+        .config("spark.eventLog.enabled", "true")
+        .config("spark.eventLog.dir", configs.mt_spark_log_path)
+        .config("spark.executor.extraJavaOptions", "-XX:+UseParallelGC")
+        .config("spark.driver.extraJavaOptions", "-XX:+UseParallelGC")
+        .getOrCreate()
+    )
+
+    dump_normalized_dataset(metadata, spark)
+
+    # dataset = StockHistoryDataset(metadata, pca_embeddings, logger)
 
     # revert std streams
     revert_streams()
