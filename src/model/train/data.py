@@ -51,6 +51,7 @@ def normalize_and_create_features(df):
 
 def dump_normalized_dataset(metadata, spark, logger):
     for symbol in tqdm(metadata["Symbol"]):
+        logger.info(f"Loading data for {symbol} ...")
         file_path = os.path.join(configs.dps_clean, f"{symbol}.csv")
         df = spark.read.csv(file_path, header=True, schema=configs.data_schema)
 
@@ -59,5 +60,6 @@ def dump_normalized_dataset(metadata, spark, logger):
         df = normalize_and_create_features(df)
 
         # Dump normalized data to CSV
+        logger.info(f"Dumping normalized data for {symbol} ...")
         normalized_file_path = os.path.join(configs.mt_normalized, f"{symbol}.csv")
         df.write.mode("overwrite").csv(normalized_file_path, header=True)
