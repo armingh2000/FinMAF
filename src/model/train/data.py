@@ -79,6 +79,6 @@ def get_stock_durations(metadata, spark, logger):
 
 
 def dump_stock_durations(metadata, spark, logger):
-    durations = get_stock_duration(metadata, spark, logger)
+    durations = get_stock_durations(metadata, spark, logger)
 
     dump_dictionary(durations, configs.stock_durations_path)
