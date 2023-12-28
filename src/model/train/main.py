@@ -38,10 +38,10 @@ if __name__ == "__main__":
     # logger.info("Loading PCA embeddings ...")
     # pca_embeddings = load_dictionary(configs.pca_embedding_path)
 
-    logger = setup_logger(configs.normalize_log_name, configs.normalize_log_path)
+    # logger = setup_logger(configs.normalize_log_name, configs.normalize_log_path)
 
     # Creating Spark Session
-    logger.info("Creating Spark session ...")
+    # logger.info("Creating Spark session ...")
     spark = (
         SparkSession.builder.appName("StockHistoryDataset")
         .config("spark.eventLog.enabled", "true")
@@ -56,10 +56,15 @@ if __name__ == "__main__":
     # dump_normalized_dataset(metadata, spark, logger)
 
     # add logs
-    dump_stock_durations(metadata, spark, None)
+    logger = setup_logger(
+        configs.stock_history_dataset_log_name, configs.stock_history_dataset_log_path
+    )
+    # dump_stock_durations(metadata, spark, logger)
 
     # Load durations
+    logger.info("Loading durations ...")
     durations = load_dictionary(configs.stock_durations_path)
+    print(list(durations.items())[:10])
 
     # dataset = StockHistoryDataset(metadata, pca_embeddings, logger)
 
