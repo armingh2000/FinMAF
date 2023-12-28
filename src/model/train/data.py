@@ -7,6 +7,7 @@ from pyspark.sql.types import DoubleType
 import numpy as np
 import os
 from tqdm import tqdm
+from src.utils import dump_dictionary
 
 
 def get_stock_metadata(logger):
@@ -63,3 +64,21 @@ def dump_normalized_dataset(metadata, spark, logger):
         logger.info(f"Dumping normalized data for {symbol} ...")
         normalized_file_path = os.path.join(configs.mt_normalized, f"{symbol}.csv")
         df.write.mode("overwrite").csv(normalized_file_path, header=True)
+
+
+def get_stock_durations(metadata, spark, logger):
+    durations = {}
+
+    for symbol in tqdm(metadata["Symbol"]):
+        file_path = os.path.join(configs.dps_clean, f"{symbol}.csv")
+        df = spark.read.csv(file_path, header=True, schema=configs.data_schema)
+
+        durations[symbol] = df.count()
+
+    return durations
+
+
+def dump_stock_durations(metadata, spark, logger):
+    durations = get_stock_duration(metadata, spark, logger)
+
+    dump_dictionary(durations, configs.stock_durations_path)

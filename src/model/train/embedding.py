@@ -2,6 +2,8 @@ from transformers import BertModel, BertTokenizer
 import torch
 from tqdm import tqdm
 from sklearn.decomposition import PCA
+import numpy as np
+import src.configs as configs
 
 
 def get_embedding_input(metadata, logger):
@@ -15,20 +17,18 @@ def get_embedding_input(metadata, logger):
     return inputs
 
 
-def perform_pca(embeddings, logger, n_components):
-    import numpy as np
-
+def perform_pca(embeddings, logger):
     logger.info("Preparing embeddings for PCA ...")
     stocks = list(embeddings.keys())
     embeddings = [embeddings[stock] for stock in stocks]
     embeddings = np.array(embeddings).squeeze()
 
     logger.info("Performing PCA ...")
-    pca = PCA(n_components=n_components)
+    pca = PCA(n_components=configs.n_pca_components)
     reduced_embeddings = pca.fit_transform(embeddings)
 
     logger.info("Generating embedding dictionary ...")
-    result = {stocks[i]: reduced_embeddings[i] for i in range(len(stocks))}
+    result = {stocks[i]: np.array(reduced_embeddings[i]) for i in range(len(stocks))}
 
     return result
 
