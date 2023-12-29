@@ -1,4 +1,4 @@
-from data import get_stock_metadata, dump_normalized_dataset, dump_stock_durations
+from data import get_stock_metadata, dump_normalized_dataset
 from embedding import get_embeddings, get_embedding_input, perform_pca
 from src.utils import dump_dictionary, load_dictionary
 import src.configs as configs
@@ -55,18 +55,12 @@ if __name__ == "__main__":
     # logger.info("Dumping normalized dataset ...")
     # dump_normalized_dataset(metadata, spark, logger)
 
-    # add logs
     logger = setup_logger(
         configs.stock_history_dataset_log_name, configs.stock_history_dataset_log_path
     )
-    # dump_stock_durations(metadata, spark, logger)
 
-    # Load durations
-    logger.info("Loading durations ...")
-    durations = load_dictionary(configs.stock_durations_path)
-    print(list(durations.items())[:10])
-
-    # dataset = StockHistoryDataset(metadata, pca_embeddings, logger)
+    stock_history_dataset = StockHistoryDataset(metadata, spark, logger)
+    print(list(stock_history_dataset.durations.items())[:10])
 
     # revert std streams
     revert_streams()

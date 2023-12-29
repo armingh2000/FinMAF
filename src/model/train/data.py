@@ -75,7 +75,15 @@ def get_stock_durations(metadata, spark, logger):
         df = spark.read.csv(file_path, header=True, schema=configs.data_schema)
 
         logger.info(f"Getting durations for {symbol} ...")
-        durations[symbol] = df.count()
+        count = df.count()
+
+        if count > configs.lstm_sequence_length:
+            durations[symbol] = count
+        else:
+            logger.info(
+                f"{symbol} has less than {configs.lstm_sequence_length} days of data"
+            )
+            logger.info(f"Skipping {symbol} ...")
 
     return durations
 
@@ -86,3 +94,5 @@ def dump_stock_durations(metadata, spark, logger):
 
     logger.info("Dumping durations ...")
     dump_dictionary(durations, configs.stock_durations_path)
+
+    return durations

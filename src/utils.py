@@ -49,9 +49,25 @@ def dump_dictionary(dictionary, filepath):
                 raise TypeError(f"Unsupported type for key '{key}': {type(value)}")
 
 
-def load_dictionary(filepath):
+def load_dictionary(filepath, logger=None, data=None):
     if not os.path.exists(filepath):
         raise ValueError(f"Filepath {filepath} does not exist")
+
+    logger_number = 0
+    data_number = 0
+
+    if logger is not None:
+        logger_number = 1
+
+    if data is not None:
+        data_number = 1
+
+    assert (
+        not logger_number ^ data_number
+    ), "Must specify both 'logger' and 'data' or neither"
+
+    if data_number and logger_number:
+        logger.info(f"Loading {data} ...")
 
     with h5py.File(filepath, "r") as file:
         dictionary = {}
