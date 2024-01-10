@@ -8,6 +8,8 @@ import numpy as np
 import os
 from tqdm import tqdm
 from src.utils import dump_dictionary
+from pyspark.sql.functions import row_number
+from pyspark.sql.window import Window
 
 
 def get_stock_metadata(logger):
@@ -46,6 +48,10 @@ def normalize_and_create_features(df):
         # df = df.drop(col).drop(col + "_Vec").withColumnRenamed(col + "_Scaled", col)
         df = df.withColumn(col + "_Scaled", first_element(col + "_Scaled_Value"))
         df = df.drop(col + "_Vec").drop(col + "_Scaled_Value")
+
+    # Add a row number column to the DataFrame
+    w = Window().orderBy("Date")
+    df = df.withColumn("Row_number", row_number().over(w))
 
     return df
 

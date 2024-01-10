@@ -5,13 +5,14 @@ import src.configs as configs
 from src.log import setup_logger, revert_streams
 from dataset import StockHistoryDataset
 from pyspark.sql import SparkSession
+from src.utils import mkpath
 
 if __name__ == "__main__":
     # setup logger
     logger = setup_logger(configs.embedding_log_name, configs.embedding_log_path)
 
     # get stock metadata
-    metadata = get_stock_metadata(logger)
+    metadata = get_stock_metadata(logger)[:5]
 
     # get embeddings input for bert
     # embedding_inputs = get_embedding_input(metadata, logger)
@@ -42,6 +43,8 @@ if __name__ == "__main__":
 
     # Creating Spark Session
     # logger.info("Creating Spark session ...")
+    # make spark log path
+    mkpath(configs.mt_spark_log_path)
     spark = (
         SparkSession.builder.appName("StockHistoryDataset")
         .config("spark.eventLog.enabled", "true")
@@ -59,8 +62,10 @@ if __name__ == "__main__":
         configs.stock_history_dataset_log_name, configs.stock_history_dataset_log_path
     )
 
-    stock_history_dataset = StockHistoryDataset(metadata, spark, logger)
-    print(list(stock_history_dataset.durations.items())[:10])
+    SHD = StockHistoryDataset(metadata, spark, logger)
+    print(SHD[0])
+    print(SHD[1])
+    print(SHD.data)
 
     # revert std streams
     revert_streams()
