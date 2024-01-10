@@ -12,7 +12,7 @@ if __name__ == "__main__":
     logger = setup_logger(configs.embedding_log_name, configs.embedding_log_path)
 
     # get stock metadata
-    metadata = get_stock_metadata(logger)[:5]
+    metadata = get_stock_metadata(logger)
 
     # get embeddings input for bert
     # embedding_inputs = get_embedding_input(metadata, logger)
@@ -39,11 +39,11 @@ if __name__ == "__main__":
     # logger.info("Loading PCA embeddings ...")
     # pca_embeddings = load_dictionary(configs.pca_embedding_path)
 
-    # logger = setup_logger(configs.normalize_log_name, configs.normalize_log_path)
+    logger = setup_logger(configs.normalize_log_name, configs.normalize_log_path)
 
     # Creating Spark Session
-    # logger.info("Creating Spark session ...")
-    # make spark log path
+    logger.info("Creating Spark session ...")
+    # Make spark log path
     mkpath(configs.mt_spark_log_path)
     spark = (
         SparkSession.builder.appName("StockHistoryDataset")
@@ -55,8 +55,8 @@ if __name__ == "__main__":
     )
 
     # Saving normalized dataset to CSV files
-    # logger.info("Dumping normalized dataset ...")
-    # dump_normalized_dataset(metadata, spark, logger)
+    logger.info("Dumping normalized dataset ...")
+    dump_normalized_dataset(metadata, spark, logger)
 
     logger = setup_logger(
         configs.stock_history_dataset_log_name, configs.stock_history_dataset_log_path
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     SHD = StockHistoryDataset(metadata, spark, logger)
     print(SHD[0])
     print(SHD[1])
-    print(SHD.data)
+    print(len(SHD))
 
     # revert std streams
     revert_streams()
