@@ -11,3 +11,5 @@ embedding_dataset_data_path = (
     project_root / "data/historical/train/embedding_dataset_data.h5"
 )
 stock_durations_path = project_root / "data/historical/train/stock_durations.h5"
+batch_size = 16
+shuffle = True

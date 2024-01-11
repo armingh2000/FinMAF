@@ -6,6 +6,8 @@ from src.log import setup_logger, revert_streams
 from dataset import StockHistoryDataset
 from pyspark.sql import SparkSession
 from src.utils import mkpath
+from torch.utils.data import DataLoader
+
 
 if __name__ == "__main__":
     # setup logger
@@ -39,10 +41,10 @@ if __name__ == "__main__":
     # logger.info("Loading PCA embeddings ...")
     # pca_embeddings = load_dictionary(configs.pca_embedding_path)
 
-    logger = setup_logger(configs.normalize_log_name, configs.normalize_log_path)
+    # logger = setup_logger(configs.normalize_log_name, configs.normalize_log_path)
 
     # Creating Spark Session
-    logger.info("Creating Spark session ...")
+    # logger.info("Creating Spark session ...")
     # Make spark log path
     mkpath(configs.mt_spark_log_path)
     spark = (
@@ -55,17 +57,16 @@ if __name__ == "__main__":
     )
 
     # Saving normalized dataset to CSV files
-    logger.info("Dumping normalized dataset ...")
-    dump_normalized_dataset(metadata, spark, logger)
+    # logger.info("Dumping normalized dataset ...")
+    # dump_normalized_dataset(metadata, spark, logger)
 
     logger = setup_logger(
         configs.stock_history_dataset_log_name, configs.stock_history_dataset_log_path
     )
 
     SHD = StockHistoryDataset(metadata, spark, logger)
-    print(SHD[0])
-    print(SHD[1])
-    print(len(SHD))
+    logger.info("Creating data loader ...")
+    SHD_loader = DataLoader(SHD, batch_size=configs.batch_size, shuffle=configs.shuffle)
 
     # revert std streams
     revert_streams()
