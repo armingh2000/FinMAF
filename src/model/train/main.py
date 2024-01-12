@@ -67,6 +67,8 @@ if __name__ == "__main__":
     SHD = StockHistoryDataset(metadata, spark, logger)
     logger.info("Creating data loader ...")
     SHD_loader = DataLoader(SHD, batch_size=configs.batch_size, shuffle=configs.shuffle)
+    sample = next(iter(SHD_loader))
+    print(sample[0].shape, sample[1].shape)
 
     # revert std streams
     revert_streams()

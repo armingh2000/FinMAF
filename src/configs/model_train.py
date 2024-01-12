@@ -11,5 +11,14 @@ embedding_dataset_data_path = (
     project_root / "data/historical/train/embedding_dataset_data.h5"
 )
 stock_durations_path = project_root / "data/historical/train/stock_durations.h5"
+
+# Model
+hidden_size = 128
+batch_first = True
+num_layers = 1
+input_size = 11
+output_size = 11
+
+# Train
 batch_size = 16
 shuffle = True
