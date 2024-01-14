@@ -6,6 +6,8 @@ import os
 import torch
 from pyspark.sql.functions import col
 import numpy as np
+from torch.utils.data import random_split
+from src.model.train.utils import dump_torch_object, load_torch_object
 
 
 class StockHistoryDataset(Dataset):
@@ -91,3 +93,34 @@ class StockHistoryDataset(Dataset):
         current_entry_tensor = torch.tensor(current_entry[0])
 
         return sequence_tensor, current_entry_tensor
+
+
+def prepare_loaders(metadata, spark, logger):
+    SHD = StockHistoryDataset(metadata, spark, logger)
+    train_dataset, val_dataset, test_dataset = chunk_dataset(SHD)
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=configs.batch_size, shuffle=configs.shuffle
+    )
+    val_loader = torch.utils.data.DataLoader(
+        val_dataset, batch_size=configs.batch_size, shuffle=False
+    )
+    test_loader = torch.utils.data.DataLoader(
+        test_dataset, batch_size=configs.batch_size, shuffle=False
+    )
+
+    return train_loader, val_loader, test_loader
+
+
+def chunk_dataset(dataset):
+    train_size = int(configs.train_split * len(dataset))
+    val_size = int(configs.val_split * len(dataset))
+    test_size = len(dataset) - train_size - val_size
+
+    # Split the dataset into train, validation, and test sets
+    generator = torch.Generator().manual_seed(configs.generator_seed)
+    train_dataset, val_dataset, test_dataset = random_split(
+        dataset, [train_size, val_size, test_size], generator=generator
+    )
+
+    return train_dataset, val_dataset, test_dataset

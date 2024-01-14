@@ -1,13 +1,14 @@
-from data import get_stock_metadata, dump_normalized_dataset
+from data import get_stock_metadata, dump_normalized_data
 from embedding import get_embeddings, get_embedding_input, perform_pca
 from src.utils import dump_dictionary, load_dictionary
 import src.configs as configs
 from src.log import setup_logger, revert_streams
-from dataset import StockHistoryDataset
 from pyspark.sql import SparkSession
 from src.utils import mkpath
 from torch.utils.data import DataLoader
-
+from dataset import prepare_loaders
+from model import StockLSTM
+from optimize import train
 
 if __name__ == "__main__":
     # setup logger
@@ -58,17 +59,17 @@ if __name__ == "__main__":
 
     # Saving normalized dataset to CSV files
     # logger.info("Dumping normalized dataset ...")
-    # dump_normalized_dataset(metadata, spark, logger)
+    # dump_normalized_data(metadata, spark, logger)
 
     logger = setup_logger(
         configs.stock_history_dataset_log_name, configs.stock_history_dataset_log_path
     )
 
-    SHD = StockHistoryDataset(metadata, spark, logger)
-    logger.info("Creating data loader ...")
-    SHD_loader = DataLoader(SHD, batch_size=configs.batch_size, shuffle=configs.shuffle)
-    sample = next(iter(SHD_loader))
-    print(sample[0].shape, sample[1].shape)
+    train_loader, val_loader, test_loader = prepare_loaders(metadata, spark, logger)
+
+    model = StockLSTM()
+
+    train(model, train_loader, val_loader, test_loader, logger)
 
     # revert std streams
     revert_streams()

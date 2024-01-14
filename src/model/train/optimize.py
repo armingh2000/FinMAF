@@ -1,35 +1,17 @@
 import torch
-from torch.utils.data import random_split
-
-dataset = None
-
-# Assuming 'dataset' is your StockHistoryDataset instance
-train_size = int(0.7 * len(dataset))
-val_size = int(0.15 * len(dataset))
-test_size = len(dataset) - train_size - val_size
-
-train_dataset, val_dataset, test_dataset = random_split(
-    dataset, [train_size, val_size, test_size]
-)
-
-batch_size = 64
-
-train_loader = torch.utils.data.DataLoader(
-    train_dataset, batch_size=batch_size, shuffle=True
-)
-val_loader = torch.utils.data.DataLoader(
-    val_dataset, batch_size=batch_size, shuffle=False
-)
-test_loader = torch.utils.data.DataLoader(
-    test_dataset, batch_size=batch_size, shuffle=False
-)
+import torch.nn as nn
+import src.configs as configs
+from src.model.train.dataset import prepare_dataset_chunks
 
 
-def train_and_evaluate(model, train_loader, val_loader, learning_rate=0.001, epochs=10):
-    loss_function = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+def train(model, train_loader, val_loader, test_loader, logger):
+    cyclic_loss_function = getattr(nn, configs.cyclic_loss)()
+    acyclic_loss_function = getattr(nn, configs.acyclic_loss)()
+    optimizer = getattr(torch.optim, configs.optimizer)(
+        model.parameters(), lr=configs.learning_rate
+    )
 
-    for epoch in range(epochs):
+    for epoch in range(configs.epochs):
         model.train()
         for sequences, targets in train_loader:
             optimizer.zero_grad()
@@ -47,10 +29,14 @@ def train_and_evaluate(model, train_loader, val_loader, learning_rate=0.001, epo
 
         val_loss /= len(val_loader)
         print(
-            f"Epoch {epoch + 1}/{epochs} - Loss: {loss.item():.4f}, Val Loss: {val_loss:.4f}"
+            f"Epoch {epoch + 1}/{configs.epochs} - Loss: {loss.item():.4f}, Val Loss: {val_loss:.4f}"
         )
 
     print("Training complete.")
+
+
+def evaluate(model, test_loader):
+    pass
 
 
 def test_model(model, test_loader):
@@ -65,13 +51,3 @@ def test_model(model, test_loader):
 
     test_loss /= len(test_loader)
     print(f"Test Loss: {test_loss:.4f}")
-
-
-# Define your LSTM model
-model = StockLSTM(input_size, hidden_layer_size, output_size, num_layers)
-
-# Train and evaluate the model
-train_and_evaluate(model, train_loader, val_loader, learning_rate=0.001, epochs=10)
-
-# Test the model
-test_model(model, test_loader)
