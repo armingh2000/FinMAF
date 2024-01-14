@@ -1,5 +1,4 @@
 from .shared import project_root
-import torch
 
 
 bert_embedding_path = project_root / "data/historical/train/bert_embeddings.h5"
@@ -36,4 +35,4 @@ val_dataset_path = project_root / "data/historical/train/val_dataset.pt"
 test_dataset_path = project_root / "data/historical/train/test_dataset.pt"
 train_split = 0.7
 val_split = 0.15
-generator_seed = 57885161  # prime number
+torch_seed = 57885161  # prime number

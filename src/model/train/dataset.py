@@ -83,14 +83,17 @@ class StockHistoryDataset(Dataset):
         ).select(self.input_columns)
 
         # Convert to PyTorch tensor
-        sequence_data = [torch.tensor(row) for row in selected_data.collect()]
+        sequence_data = [
+            torch.tensor(row, dtype=torch.float32) for row in selected_data.collect()
+        ]
         sequence_tensor = torch.stack(sequence_data)
 
         # Fetch current entry data
         current_entry = (
             df.filter(col("Row_number") == entry).select(self.input_columns).collect()
         )
-        current_entry_tensor = torch.tensor(current_entry[0])
+
+        current_entry_tensor = torch.tensor(current_entry[0], dtype=torch.float32)
 
         return sequence_tensor, current_entry_tensor
 
@@ -118,9 +121,8 @@ def chunk_dataset(dataset):
     test_size = len(dataset) - train_size - val_size
 
     # Split the dataset into train, validation, and test sets
-    generator = torch.Generator().manual_seed(configs.generator_seed)
     train_dataset, val_dataset, test_dataset = random_split(
-        dataset, [train_size, val_size, test_size], generator=generator
+        dataset, [train_size, val_size, test_size]
     )
 
     return train_dataset, val_dataset, test_dataset

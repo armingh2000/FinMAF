@@ -1,12 +1,13 @@
 import torch
 import torch.nn as nn
 import src.configs as configs
-from src.model.train.dataset import prepare_dataset_chunks
 
 
-def train(model, train_loader, val_loader, test_loader, logger):
+def train(model, train_loader, val_loader, logger):
     cyclic_loss_function = getattr(nn, configs.cyclic_loss)()
     acyclic_loss_function = getattr(nn, configs.acyclic_loss)()
+    cyclic_loss_weight = configs.cyclic_loss_weight
+    acyclic_loss_weight = configs.acyclic_loss_weight
     optimizer = getattr(torch.optim, configs.optimizer)(
         model.parameters(), lr=configs.learning_rate
     )

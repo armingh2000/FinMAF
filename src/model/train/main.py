@@ -6,9 +6,10 @@ from src.log import setup_logger, revert_streams
 from pyspark.sql import SparkSession
 from src.utils import mkpath
 from torch.utils.data import DataLoader
-from dataset import prepare_loaders
+from dataset import prepare_loaders, StockHistoryDataset
 from model import StockLSTM
 from optimize import train
+import torch
 
 if __name__ == "__main__":
     # setup logger
@@ -65,11 +66,16 @@ if __name__ == "__main__":
         configs.stock_history_dataset_log_name, configs.stock_history_dataset_log_path
     )
 
-    train_loader, val_loader, test_loader = prepare_loaders(metadata, spark, logger)
+    # Setting torch seed
+    torch.manual_seed(configs.torch_seed)
 
-    model = StockLSTM()
+    SHD = StockHistoryDataset(metadata, spark, logger)
 
-    train(model, train_loader, val_loader, test_loader, logger)
+    # train_loader, val_loader, test_loader = prepare_loaders(metadata, spark, logger)
+
+    # model = StockLSTM()
+
+    # train(model, train_loader, val_loader, logger)
 
     # revert std streams
     revert_streams()
