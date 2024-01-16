@@ -1,4 +1,5 @@
 # Financial Market Analysis and Forecasting Tool
+[![Python Environment Setup and Test](https://github.com/armingh2000/FinMAF/actions/workflows/python_env_setup_and_test.yml/badge.svg)](https://github.com/armingh2000/FinMAF/actions/workflows/python_env_setup_and_test.yml)
 
 ## Overview
 This project is an end-to-end financial market analysis tool designed to process, analyze, and visualize financial data in real-time. It covers various phases from data processing to web development and deployment.
