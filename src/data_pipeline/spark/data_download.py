@@ -2,17 +2,20 @@ import pandas as pd
 import yfinance as yf
 import src.configs as configs
 from tqdm import tqdm
+from src.utils import mkpath
 
 # silent SettingWithCopyWarning
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
 def download_symbols(logger):
+    url = "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqtraded.txt"
+
     data = pd.read_csv(
-        "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqtraded.txt",
+        url,
         sep="|",
         dtype={"Symbol": str, "Symbol": str},
-        keep_default_na=False,  # This prevents Pandas from interpreting "NA" as NaN
+        keep_default_na=False,  # This prevents Pandas from interpreting "NA" symbol as NaN
     )
     data_clean = data[data["Test Issue"] == "N"]
 
@@ -38,6 +41,10 @@ def save_symbols(symbols, data_clean, logger):
 
     for i in tqdm(range(configs.offset, end)):
         s = symbols[i]
+        if s.upper() in configs.windows_reserved_names:
+            logger.error(f"Skipping {s} due to Windows reserved name")
+            is_failed[i] = True
+            continue
 
         attempts = 0
         while attempts < 3:
