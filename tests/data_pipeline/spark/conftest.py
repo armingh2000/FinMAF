@@ -57,7 +57,6 @@ def mock_yf_download(monkeypatch):
 @pytest.fixture(scope="session")
 def spark_session():
     findspark.init()
-    findspark.find()
     spark = SparkSession.builder.appName("test").getOrCreate()
     yield spark
     spark.stop()
