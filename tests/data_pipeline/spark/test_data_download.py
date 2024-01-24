@@ -81,7 +81,7 @@ def test_save_symbols(symbols, logger, data_clean, mock_configs, mock_yf_downloa
 
 
 def test_handle_windows_reserved_device_names(
-    windows_reserved_symbols, windows_reserved_data_clean, mock_logger
+    windows_reserved_symbols, windows_reserved_data_clean, mock_logger, mock_configs
 ):
     assert (
         len(
