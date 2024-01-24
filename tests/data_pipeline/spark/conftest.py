@@ -16,6 +16,21 @@ def logger():
 
 
 @pytest.fixture(scope="module")
+def windows_reserved_symbols():
+    symbols = configs.windows_reserved_names
+    return symbols
+
+
+@pytest.fixture(scope="module")
+def windows_reserved_data_clean(windows_reserved_symbols):
+    return pd.DataFrame(
+        {
+            "Symbol": windows_reserved_symbols,
+        }
+    )
+
+
+@pytest.fixture(scope="module")
 def symbols():
     symbols = ["AA", "ABEO", "AB", "ACONW", "AC"]  # ACONW should fail
     return symbols
