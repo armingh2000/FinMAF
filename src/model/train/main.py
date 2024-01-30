@@ -69,13 +69,11 @@ if __name__ == "__main__":
     # Setting torch seed
     torch.manual_seed(configs.torch_seed)
 
-    SHD = StockHistoryDataset(metadata, spark, logger)
+    train_loader, val_loader, test_loader = prepare_loaders(metadata, spark, logger)
 
-    # train_loader, val_loader, test_loader = prepare_loaders(metadata, spark, logger)
+    model = StockLSTM()
 
-    # model = StockLSTM()
-
-    # train(model, train_loader, val_loader, logger)
+    train(model, train_loader, val_loader, logger)
 
     # revert std streams
     revert_streams()

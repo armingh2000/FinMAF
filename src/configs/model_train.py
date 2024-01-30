@@ -25,14 +25,14 @@ epochs = 10
 learning_rate = 0.001
 cyclic_loss = "MSELoss"
 acyclic_loss = "L1Loss"
-cyclic_loss_weight = 0.7
-acyclic_loss_weight = 0.3
+cyclic_loss_weight = 0.3
+acyclic_loss_weight = 0.7
 optimizer = "Adam"
 
 # Dataset
 train_dataset_path = project_root / "data/historical/train/train_dataset.pt"
 val_dataset_path = project_root / "data/historical/train/val_dataset.pt"
 test_dataset_path = project_root / "data/historical/train/test_dataset.pt"
-train_split = 0.7
-val_split = 0.15
+train_split = 0.001
+val_split = 0.0001
 torch_seed = 57885161  # prime number
