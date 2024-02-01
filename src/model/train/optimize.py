@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import src.configs as configs
 from tqdm import tqdm
+from utils import save_checkpoint, load_checkpoint
 
 cyclic_loss_function = getattr(nn, configs.cyclic_loss)()
 acyclic_loss_function = getattr(nn, configs.acyclic_loss)()
@@ -22,12 +23,24 @@ def get_loss(pred, target):
     return cyclic_loss * cyclic_loss_weight + acyclic_loss * acyclic_loss_weight
 
 
-def train(model, train_loader, val_loader, logger):
+def train(model, train_loader, val_loader, logger, checkpoint=None):
     optimizer = getattr(torch.optim, configs.optimizer)(
         model.parameters(), lr=configs.learning_rate
     )
 
-    for epoch in range(configs.epochs):
+    loaded_model, loaded_optimizer, loaded_start_epoch = load_checkpoint(
+        checkpoint, model, optimizer, logger
+    )
+
+    if loaded_start_epoch is None:
+        start_epoch = 0
+
+    else:
+        start_epoch = loaded_start_epoch
+        model = loaded_model
+        optimizer = loaded_optimizer
+
+    for epoch in range(start_epoch, configs.epochs):
         logger.info(f"Starting epoch {epoch + 1}/{configs.epochs}")
         model.train()
         for iteration, data in tqdm(
@@ -43,8 +56,17 @@ def train(model, train_loader, val_loader, logger):
             if (iteration + 1) % 5 == 0:
                 evaluate(model, val_loader, logger)
 
-        evaluate(model, val_loader, logger)
+        epoch_loss = evaluate(model, val_loader, logger)
         logger.info(f"Epoch {epoch + 1}/{configs.epochs} complete.")
+
+        # Save checkpoint after each epoch
+        save_checkpoint(
+            model=model,
+            optimizer=optimizer,
+            epoch=epoch,
+            loss=epoch_loss,
+            logger=logger,
+        )
 
     logger.info("Training complete.")
 
@@ -60,6 +82,8 @@ def evaluate(model, val_loader, logger):
 
     val_loss /= len(val_loader)
     logger.info(f"Validation Loss: {val_loss:.4f}")
+
+    return val_loss
 
 
 def test_model(model, test_loader, logger):
