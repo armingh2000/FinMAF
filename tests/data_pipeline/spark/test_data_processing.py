@@ -17,6 +17,7 @@ from pyspark.sql.types import (
 )
 import pytest
 from pathlib import Path
+import findspark
 
 
 @pytest.fixture
@@ -177,3 +178,8 @@ def test_process(mock_logger, mock_spark_session, mock_clean_stock_data):
 
     # Assert that clean_stock_data was called correctly
     mock_clean_stock_data.assert_called_once_with(mock_spark_session, mock_logger)
+
+
+def test_findspark_successful():
+    findspark.init()
+    assert findspark.find()

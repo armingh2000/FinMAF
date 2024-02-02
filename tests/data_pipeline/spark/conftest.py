@@ -1,18 +1,33 @@
 import pytest
 import os
 import csv
-from pyspark.sql import SparkSession
-from pathlib import Path
 import src.configs as configs
 from unittest.mock import Mock
 import shutil
 import pandas as pd
 import yfinance as yf
+import findspark
+from pyspark.sql import SparkSession
 
 
 @pytest.fixture(scope="module")
 def logger():
     return Mock()
+
+
+@pytest.fixture(scope="module")
+def windows_reserved_symbols():
+    symbols = configs.windows_reserved_names
+    return symbols
+
+
+@pytest.fixture(scope="module")
+def windows_reserved_data_clean(windows_reserved_symbols):
+    return pd.DataFrame(
+        {
+            "Symbol": windows_reserved_symbols,
+        }
+    )
 
 
 @pytest.fixture(scope="module")
@@ -56,6 +71,7 @@ def mock_yf_download(monkeypatch):
 
 @pytest.fixture(scope="session")
 def spark_session():
+    findspark.init()
     spark = SparkSession.builder.appName("test").getOrCreate()
     yield spark
     spark.stop()

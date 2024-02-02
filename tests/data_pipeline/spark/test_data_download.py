@@ -78,3 +78,16 @@ def test_save_symbols(symbols, logger, data_clean, mock_configs, mock_yf_downloa
     for csv_file in configs.dps_raw.glob("*.csv"):
         df = pd.read_csv(csv_file)
         assert df["Volume"].dtype == "int64"
+
+
+def test_handle_windows_reserved_device_names(
+    windows_reserved_symbols, windows_reserved_data_clean, mock_logger, mock_configs
+):
+    assert (
+        len(
+            save_symbols(
+                windows_reserved_symbols, windows_reserved_data_clean, mock_logger
+            )
+        )
+        == 0
+    )
