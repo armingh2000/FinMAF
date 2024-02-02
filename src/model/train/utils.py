@@ -83,15 +83,15 @@ def load_checkpoint(checkpoint_path=None, model=None, optimizer=None, logger=Non
         )
 
         if not model_checkpoints or not training_state_checkpoints:
-            logger.error("No checkpoints found")
+            logger.info("No checkpoints found")
             return None, None, None
 
         # Sort the checkpoints by epoch to find the most recent one
         latest_model_checkpoint = max(
-            model_checkpoints, key=lambda path: int(path.stem.split("_")[-3])
+            model_checkpoints, key=lambda path: int(path.stem.split("_")[-2])
         )
         latest_training_state_checkpoint = max(
-            training_state_checkpoints, key=lambda path: int(path.stem.split("_")[-3])
+            training_state_checkpoints, key=lambda path: int(path.stem.split("_")[-2])
         )
 
         logger.info(f"Loading the latest model checkpoint '{latest_model_checkpoint}'")

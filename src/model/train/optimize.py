@@ -3,6 +3,7 @@ import torch.nn as nn
 import src.configs as configs
 from tqdm import tqdm
 from utils import save_checkpoint, load_checkpoint
+from src.utils import mkpath
 
 cyclic_loss_function = getattr(nn, configs.cyclic_loss)()
 acyclic_loss_function = getattr(nn, configs.acyclic_loss)()
@@ -24,6 +25,8 @@ def get_loss(pred, target):
 
 
 def train(model, train_loader, val_loader, logger, checkpoint=None):
+    mkpath(configs.model_checkpoint_dir_path)
+    mkpath(configs.training_state_checkpoint_dir_path)
     optimizer = getattr(torch.optim, configs.optimizer)(
         model.parameters(), lr=configs.learning_rate
     )
@@ -36,7 +39,7 @@ def train(model, train_loader, val_loader, logger, checkpoint=None):
         start_epoch = 0
 
     else:
-        start_epoch = loaded_start_epoch
+        start_epoch = loaded_start_epoch + 1
         model = loaded_model
         optimizer = loaded_optimizer
 
