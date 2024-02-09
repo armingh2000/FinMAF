@@ -18,10 +18,10 @@ num_layers = 1
 input_size = 11
 output_size = 11
 
-# Train
+# Optimize
 batch_size = 16
 shuffle = True
-epochs = 10
+epochs = 100
 learning_rate = 0.001
 cyclic_loss = "MSELoss"
 acyclic_loss = "L1Loss"

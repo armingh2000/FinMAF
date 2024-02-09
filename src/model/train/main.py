@@ -73,6 +73,8 @@ if __name__ == "__main__":
 
     model = StockLSTM()
 
+    logger = setup_logger(configs.optimize_log_name, configs.optimize_log_path)
+
     train(model, train_loader, val_loader, logger)
 
     # revert std streams
