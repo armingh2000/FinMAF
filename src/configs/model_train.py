@@ -43,14 +43,14 @@ val_split = 0.00001
 torch_seed = 57885161  # prime number
 
 # Ray Tune
-rt_config = {
+ray_tune_config = {
     "batch_size": tune.choice([16, 32, 64]),
-    "epochs": tune.choice([10, 20, 30]),
+    "epochs": tune.uniform(5, 20),
     "learning_rate": tune.loguniform(1e-4, 1e-1),
     "cyclic_loss_weight": tune.loguniform(1e-4, 1e-1),
-    "optimizer": tune.choice(["Adam", "SGD", "RMSprop"]),
+    "optimizer": tune.grid(["Adam", "SGD", "RMSprop"]),
     "hidden_size": tune.choice([64, 128, 256, 512, 1024]),
-    "num_layers": tune.choice([1, 2, 4, 8]),
+    "num_layers": tune.grid([1, 2, 4, 8]),
 }
-
-rt_config["acyclic_loss_weight"] = 1 - rt_config["cyclic_loss_weight"]
+# https://docs.ray.io/en/latest/tune/api/search_space.html
+ray_tune_config["acyclic_loss_weight"] = 1 - ray_tune_config["cyclic_loss_weight"]

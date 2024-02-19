@@ -16,3 +16,7 @@ stock_history_dataset_log_path = project_root / "logs/mt_stock_history_dataset.l
 mt_spark_log_path = project_root / "logs/spark/model_train/"
 optimize_log_path = project_root / "logs/mt_optimize.log"
 optimize_log_name = "mt_optimize"
+
+## Ray Tune
+ray_tune_log_path = project_root / "logs/ray_tune/"
+ray_tune_log_name = "mt_ray_tune.log"

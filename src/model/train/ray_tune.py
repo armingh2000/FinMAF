@@ -31,7 +31,7 @@ def tune_hyperparameters(
     train_loader, val_loader, num_samples=10, max_num_epochs=10, gpus_per_trial=0
 ):
     # Load and pass the logger here if needed
-    logger = setup_logger()
+    logger = setup_logger(configs.ray_tune_log_name, configs.ray_tune_log_path)
 
     scheduler = ASHAScheduler(
         metric="loss",
@@ -53,15 +53,15 @@ def tune_hyperparameters(
     result = tune.run(
         wrapped_training_function,
         resources_per_trial={"cpu": 1, "gpu": gpus_per_trial},
-        config=config,
+        config=configs.ray_tune_config,
         num_samples=num_samples,
         scheduler=scheduler,
         progress_reporter=reporter,
     )
 
     best_trial = result.get_best_trial("loss", "min", "last")
-    print(f"Best trial config: {best_trial.config}")
-    print(f"Best trial final validation loss: {best_trial.last_result['loss']}")
+    logger.info(f"Best trial config: {best_trial.config}")
+    logger.info(f"Best trial final validation loss: {best_trial.last_result['loss']}")
 
 
 if __name__ == "__main__":
