@@ -7,3 +7,4 @@ pytest
 transformers
 torch
 h5py
+ray[tune]
