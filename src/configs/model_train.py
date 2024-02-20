@@ -42,7 +42,7 @@ train_split = 0.0001
 val_split = 0.00001
 torch_seed = 57885161  # prime number
 
-# Ray Tune
+# Ray Tune Configs
 ray_tune_config = {
     "batch_size": tune.choice([16, 32, 64]),
     "epochs": tune.uniform(5, 20),
@@ -52,5 +52,3 @@ ray_tune_config = {
     "hidden_size": tune.choice([64, 128, 256, 512, 1024]),
     "num_layers": tune.grid([1, 2, 4, 8]),
 }
-# https://docs.ray.io/en/latest/tune/api/search_space.html
-ray_tune_config["acyclic_loss_weight"] = 1 - ray_tune_config["cyclic_loss_weight"]
