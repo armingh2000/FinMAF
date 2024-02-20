@@ -30,15 +30,13 @@ def train(model, train_loader, val_loader, logger, checkpoint=None):
     optimizer = getattr(torch.optim, configs.optimizer)(
         model.parameters(), lr=configs.learning_rate
     )
+    start_epoch = 0
 
     loaded_model, loaded_optimizer, loaded_start_epoch = load_checkpoint(
         checkpoint, model, optimizer, logger
     )
 
-    if loaded_start_epoch is None:
-        start_epoch = 0
-
-    else:
+    if loaded_start_epoch is not None:
         start_epoch = loaded_start_epoch + 1
         model = loaded_model
         optimizer = loaded_optimizer
@@ -56,20 +54,14 @@ def train(model, train_loader, val_loader, logger, checkpoint=None):
             loss.backward()
             optimizer.step()
 
-            if (iteration + 1) % 5 == 0:
-                evaluate(model, val_loader, logger)
-
-        epoch_loss = evaluate(model, val_loader, logger)
-        logger.info(f"Epoch {epoch + 1}/{configs.epochs} complete.")
-
-        # Save checkpoint after each epoch
-        save_checkpoint(
-            model=model,
-            optimizer=optimizer,
-            epoch=epoch,
-            loss=epoch_loss,
-            logger=logger,
-        )
+        # # Save checkpoint after each epoch
+        # save_checkpoint(
+        #     model=model,
+        #     optimizer=optimizer,
+        #     epoch=epoch,
+        #     loss=epoch_loss,
+        #     logger=logger,
+        # )
 
     logger.info("Training complete.")
 

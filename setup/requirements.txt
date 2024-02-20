@@ -7,4 +7,5 @@ pytest
 transformers
 torch
 h5py
-ray[tune]
+ray[tune,train]
+hyperopt
