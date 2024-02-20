@@ -1,5 +1,4 @@
 from .shared import project_root
-from ray import tune
 
 
 bert_embedding_path = project_root / "data/historical/train/bert_embeddings.h5"
@@ -41,14 +40,3 @@ test_dataset_path = project_root / "data/historical/train/test_dataset.pt"
 train_split = 0.0001
 val_split = 0.00001
 torch_seed = 57885161  # prime number
-
-# Ray Tune Configs
-ray_tune_config = {
-    "batch_size": tune.choice([16, 32, 64]),
-    "epochs": tune.uniform(5, 20),
-    "learning_rate": tune.loguniform(1e-4, 1e-1),
-    "cyclic_loss_weight": tune.loguniform(1e-4, 1e-1),
-    "optimizer": tune.grid(["Adam", "SGD", "RMSprop"]),
-    "hidden_size": tune.choice([64, 128, 256, 512, 1024]),
-    "num_layers": tune.grid([1, 2, 4, 8]),
-}

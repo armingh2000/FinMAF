@@ -20,3 +20,4 @@ optimize_log_name = "mt_optimize"
 ## Ray Tune
 ray_tune_log_path = project_root / "logs/ray_tune/"
 ray_tune_log_name = "mt_ray_tune.log"
+rt_spark_lo_path = project_root / "logs/spark/ray_tune/"

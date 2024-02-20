@@ -1,14 +1,19 @@
 from ray import tune
-from ray.air import Checkpoint, session
 from ray.tune.schedulers import ASHAScheduler
 import src.configs as configs
 from ray.tune import CLIReporter
 from model import StockLSTM
 from functools import partial
 from src.log import setup_logger, revert_streams
+from optimize import train
+from src.utils import mkpath
+from pyspark.sql import SparkSession
+from data import get_stock_metadata
+import torch
+from dataset import prepare_loaders
 
 
-def training_function(config, train_loader, val_loader, logger, checkpoint_dir=None):
+def training_function(config, metadata, spark, logger):
     # Update configs with Ray Tune's config
     configs.cyclic_loss_weight = config["cyclic_loss_weight"]
     configs.acyclic_loss_weight = 1 - config["cyclic_loss_weight"]
@@ -19,20 +24,17 @@ def training_function(config, train_loader, val_loader, logger, checkpoint_dir=N
     configs.num_layers = config["num_layers"]
     configs.batch_size = config["batch_size"]
 
+    train_loader, val_loader, test_loader = prepare_loaders(metadata, spark, logger)
     model = StockLSTM()
 
-    # Your existing train function here, adjusted if necessary to fit this format
     # region: fix train function
-    train(model, train_loader, val_loader, logger, checkpoint)
+    train(model, train_loader, val_loader, logger)
     # endregion
 
 
 def tune_hyperparameters(
-    train_loader, val_loader, num_samples=10, max_num_epochs=10, gpus_per_trial=0
+    metadata, spark, logger, num_samples=10, max_num_epochs=10, gpus_per_trial=0
 ):
-    # Load and pass the logger here if needed
-    logger = setup_logger(configs.ray_tune_log_name, configs.ray_tune_log_path)
-
     scheduler = ASHAScheduler(
         metric="loss",
         mode="min",
@@ -45,8 +47,8 @@ def tune_hyperparameters(
 
     wrapped_training_function = partial(
         training_function,
-        train_loader=train_loader,
-        val_loader=val_loader,
+        metadata=metadata,
+        spark=spark,
         logger=logger,
     )
 
@@ -65,14 +67,30 @@ def tune_hyperparameters(
 
 
 if __name__ == "__main__":
-    # Load your data here
-    train_loader, val_loader = get_data_loaders(
-        batch_size=64
-    )  # Adjust batch size or loading logic as needed
+    # Load and pass the logger here if needed
+    logger = setup_logger(configs.ray_tune_log_name, configs.ray_tune_log_path)
+
+    # Create Spark Session
+    logger.info("Creating Spark session ...")
+
+    # Make Spark Log Path
+    mkpath(configs.rt_spark_lo_path)
+    spark = (
+        SparkSession.builder.appName("StockHistoryDataset")
+        .config("spark.eventLog.enabled", "true")
+        .config("spark.eventLog.dir", configs.rt_spark_lo_path)
+        .config("spark.executor.extraJavaOptions", "-XX:+UseParallelGC")
+        .config("spark.driver.extraJavaOptions", "-XX:+UseParallelGC")
+        .getOrCreate()
+    )
+
+    # Set Torch Seed
+    torch.manual_seed(configs.torch_seed)
+
+    # Get Stock Metadata
+    metadata = get_stock_metadata(logger)
 
     # Call the hyperparameter tuning function with the data loaders
-    tune_hyperparameters(
-        train_loader, val_loader, num_samples=10, max_num_epochs=30, gpus_per_trial=1
-    )
+    tune_hyperparameters(metadata, spark, logger)
 
     revert_streams()
