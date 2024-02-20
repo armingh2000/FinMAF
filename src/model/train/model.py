@@ -3,15 +3,15 @@ import src.configs as configs
 
 
 class StockLSTM(nn.Module):
-    def __init__(self):
+    def __init__(self, hidden_size, num_layers):
         super(StockLSTM, self).__init__()
         self.lstm = nn.LSTM(
             configs.input_size,
-            configs.hidden_size,
-            configs.num_layers,
+            hidden_size,
+            num_layers,
             batch_first=configs.batch_first,
         )
-        self.fc = nn.Linear(configs.hidden_size, configs.output_size)
+        self.fc = nn.Linear(hidden_size, configs.output_size)
 
     def forward(self, x):
         out, _ = self.lstm(x)

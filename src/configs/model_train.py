@@ -28,10 +28,6 @@ acyclic_loss = "L1Loss"
 cyclic_loss_weight = 0.3
 acyclic_loss_weight = 0.7
 optimizer = "Adam"
-model_checkpoint_dir_path = project_root / "data/historical/train/model_checkpoint/"
-training_state_checkpoint_dir_path = (
-    project_root / "data/historical/train/train_state_checkpoint/"
-)
 
 # Dataset
 train_dataset_path = project_root / "data/historical/train/train_dataset.pt"

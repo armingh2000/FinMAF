@@ -13,35 +13,27 @@ from pyspark.sql import SparkSession
 from data import get_stock_metadata
 import torch
 from dataset import prepare_loaders
-from optimize import train as train_func
-from optimize import evaluate as evaluate_func
+from optimize import train_func
 
 
 def training_function(config, metadata, spark, logger):
-    # Update configs with Ray Tune's config
-    configs.cyclic_loss_weight = config["cyclic_loss_weight"]
-    configs.acyclic_loss_weight = 1 - config["cyclic_loss_weight"]
-    configs.optimizer = config["optimizer"]
-    configs.learning_rate = config["learning_rate"]
-    configs.epochs = config["epochs"]
-    configs.hidden_size = config["hidden_size"]
-    configs.num_layers = config["num_layers"]
-    configs.batch_size = config["batch_size"]
+    config["acyclic_loss_weight"] = 1 - config["cyclic_loss_weight"]
 
     train_loader, val_loader, _ = prepare_loaders(metadata, spark, logger)
-    model = StockLSTM()
+    model = StockLSTM(config["hidden_size"], config["num_layers"])
 
-    # region: fix train function
-    train_func(model, train_loader, val_loader, logger)
-    # endregion
+    train_func(model, config, train_loader, val_loader, logger)
 
 
 def tune_hyperparameters(
-    metadata, spark, logger, num_samples=10, max_num_epochs=10, gpus_per_trial=0
+    metadata,
+    spark,
+    logger,
+    max_num_epochs=10,
 ):
     # Initialize the scheduler.
     scheduler = ASHAScheduler(
-        metric="loss",
+        metric="epoch loss",
         mode="min",
         max_t=max_num_epochs,
         grace_period=1,
@@ -51,9 +43,12 @@ def tune_hyperparameters(
     # Initialize the reporter.
     reporter = CLIReporter(
         metric_columns=[
+            "epoch",
             "epoch loss",
-            "mid-train loss",
+            "epoch accuracy",
             "iteration",
+            "iteration loss",
+            "iteration accuracy",
         ]
     )
 
@@ -70,21 +65,20 @@ def tune_hyperparameters(
     tuner = tune.Tuner(
         wrapped_training_function,
         tune_config=tune.TuneConfig(
-            num_samples=10,
+            num_samples=configs.rt_num_samples,
             search_alg=search_alg,
+            scheduler=scheduler,
         ),
         run_config=RunConfig(
+            name=configs.ray_tune_exp_name,
+            storage_path=configs.ray_tune_exp_path,
             progress_reporter=reporter,
-            resources_per_trial={"cpu": 1, "gpu": gpus_per_trial},
+            resources_per_trial=configs.rt_resources_per_trial,
         ),
-        param_space=configs.ray_tune_config,
+        param_space=configs.rt_config,
     )
 
-    results = tuner.fit()
-
-    best_trial = results.get_best_trial("loss", "min", "last")
-    logger.info(f"Best trial config: {best_trial.config}")
-    logger.info(f"Best trial final validation loss: {best_trial.last_result['loss']}")
+    result_grid = tuner.fit()
 
 
 if __name__ == "__main__":
