@@ -9,27 +9,47 @@ from src.model.predict import download_symbol
 if "symbol" not in st.session_state:
     st.switch_page(configs.input_form_page)
 
+col1, col2 = st.columns([3, 1])
+
 symbol = st.session_state["symbol"]
 
 model = get_model()
-actual_candlestick = get_actuals(symbol)
-pred_candlestick = get_preds(symbol, model)
 
-df = download_symbol(symbol)[-configs.window_size :]
-x_hammer, y_hammer = find_inverted_hammer_positions(df)
+if "actual_candlestick" not in st.session_state:
+    st.session_state.actual_candlestick = get_actuals(symbol)
 
-fig = go.Figure(
-    data=[actual_candlestick, pred_candlestick],
-)
+if "pred_candlestick" not in st.session_state:
+    st.session_state.pred_candlestick = get_preds(symbol, model)
 
-fig.add_trace(
-    go.Scatter(
-        x=x_hammer,
-        y=y_hammer,
-        mode="markers",
-        marker=dict(size=10, color="green", symbol="arrow-up"),
-        name="Inverted Hammer",
+if "df" not in st.session_state:
+    st.session_state.df = download_symbol(symbol)[-configs.window_size :]
+    st.session_state.x_hammer, st.session_state.y_hammer = (
+        find_inverted_hammer_positions(st.session_state.df)
     )
-)
 
-st.plotly_chart(fig)
+if "show_inverted_hammer" not in st.session_state:
+    st.session_state.show_inverted_hammer = False
+
+with col2:
+    if st.button("Find Inverted Hammer"):
+        st.session_state.show_inverted_hammer = (
+            not st.session_state.show_inverted_hammer
+        )
+
+with col1:
+    fig = go.Figure(
+        data=[st.session_state.actual_candlestick, st.session_state.pred_candlestick],
+    )
+
+    if st.session_state.show_inverted_hammer:
+        fig.add_trace(
+            go.Scatter(
+                x=st.session_state.x_hammer,
+                y=0.97 * st.session_state.y_hammer,
+                mode="markers",
+                marker=dict(size=10, color="green", symbol="arrow-up"),
+                name="Inverted Hammer",
+            )
+        )
+
+    st.plotly_chart(fig)
