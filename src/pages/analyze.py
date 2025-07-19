@@ -1,69 +1,55 @@
 import streamlit as st
-import yfinance as yf
-import plotly.graph_objects as go
-import pandas as pd
-from src.model.model import FinMAF
 import src.configs as configs
-import torch
-from src.model.predict import predict
-
-
-@st.cache_resource
-def get_model():
-    model = FinMAF(configs.data_dim)
-    print("Loading model weights...")
-    model.load_state_dict(torch.load(configs.model_path))
-
-    return model
-
-
-def get_actuals(symbol):
-    df = yf.download(tickers=symbol, period="3mo", interval="1d", repair=True)
-
-    df = df[-configs.window_size * 2 :]
-
-    actual_candlestick = go.Candlestick(
-        x=df.index,
-        open=df["Open"][symbol],
-        high=df["High"][symbol],
-        low=df["Low"][symbol],
-        close=df["Close"][symbol],
-        name=f"{symbol} Actual",
-    )
-
-    return actual_candlestick
-
-
-def get_preds(symbol):
-    pred = predict(model, symbol, "1m")
-
-    pred_candlestick = go.Candlestick(
-        x=pred.index,
-        open=pred["Open"],
-        high=pred["High"],
-        low=pred["Low"],
-        close=pred["Close"],
-        name=f"{symbol} Prediction",
-    )
-
-    pred_candlestick.increasing.line.color = "ghostwhite"
-    pred_candlestick.decreasing.line.color = "grey"
-
-    return pred_candlestick
+from src.pages.cache import get_model
+from src.pages.stats import get_actuals, get_preds, find_inverted_hammer_positions
+import plotly.graph_objects as go
+from src.model.predict import download_symbol
 
 
 if "symbol" not in st.session_state:
     st.switch_page(configs.input_form_page)
 
+col1, col2 = st.columns([3, 1])
+
 symbol = st.session_state["symbol"]
 
-actual_candlestick = get_actuals(symbol)
-
 model = get_model()
-pred_candlestick = get_preds(symbol)
 
-fig = go.Figure(
-    data=[actual_candlestick, pred_candlestick],
-)
+if "actual_candlestick" not in st.session_state:
+    st.session_state.actual_candlestick = get_actuals(symbol)
 
-st.plotly_chart(fig)
+if "pred_candlestick" not in st.session_state:
+    st.session_state.pred_candlestick = get_preds(symbol, model)
+
+if "df" not in st.session_state:
+    st.session_state.df = download_symbol(symbol)[-configs.window_size :]
+    st.session_state.x_hammer, st.session_state.y_hammer = (
+        find_inverted_hammer_positions(st.session_state.df)
+    )
+
+if "show_inverted_hammer" not in st.session_state:
+    st.session_state.show_inverted_hammer = False
+
+with col2:
+    if st.button("Find Inverted Hammer"):
+        st.session_state.show_inverted_hammer = (
+            not st.session_state.show_inverted_hammer
+        )
+
+with col1:
+    fig = go.Figure(
+        data=[st.session_state.actual_candlestick, st.session_state.pred_candlestick],
+    )
+
+    if st.session_state.show_inverted_hammer:
+        fig.add_trace(
+            go.Scatter(
+                x=st.session_state.x_hammer,
+                y=0.97 * st.session_state.y_hammer,
+                mode="markers",
+                marker=dict(size=10, color="green", symbol="arrow-up"),
+                name="Inverted Hammer",
+            )
+        )
+
+    st.plotly_chart(fig)
