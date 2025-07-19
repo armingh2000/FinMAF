@@ -45,3 +45,10 @@ def find_inverted_hammer_positions(df):
     inverted_hammer_positions = df[result["result"]]
 
     return inverted_hammer_positions.index, inverted_hammer_positions["Low"]
+
+
+def find_hammer_positions(df):
+    result = candlestick.hammer(df, target="result")
+    hammer_positions = df[result["result"]]
+
+    return hammer_positions.index, hammer_positions["Low"]
