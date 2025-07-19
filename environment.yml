@@ -2,20 +2,20 @@ name: FinMAF
 channels:
   - defaults
 dependencies:
-  - bzip2=1.0.8
-  - ca-certificates=2024.11.26
-  - libffi=3.4.4
-  - openssl=3.0.15
-  - pip=24.2
-  - python=3.11.11
-  - setuptools=75.1.0
-  - sqlite=3.45.3
-  - tk=8.6.14
-  # - vc=14.40
-  # - vs2015_runtime=14.42.34433
-  - wheel=0.44.0
-  - xz=5.4.6
-  - zlib=1.2.13
+  - bzip2=1.0.8=h2bbff1b_6
+  - ca-certificates=2024.11.26=haa95532_0
+  - libffi=3.4.4=hd77b12b_1
+  - openssl=3.0.15=h827c3e9_0
+  - pip=24.2=py311haa95532_0
+  - python=3.11.11=h4607a30_0
+  - setuptools=75.1.0=py311haa95532_0
+  - sqlite=3.45.3=h2bbff1b_0
+  - tk=8.6.14=h0416ee5_0
+  # - vc=14.40=haa95532_2
+  # - vs2015_runtime=14.42.34433=h9531ae6_2
+  - wheel=0.44.0=py311haa95532_0
+  - xz=5.4.6=h8cc25b3_1
+  - zlib=1.2.13=h8cc25b3_1
   - pip:
       - altair==5.5.0
       - attrs==24.3.0
@@ -23,9 +23,11 @@ dependencies:
       - blinker==1.9.0
       - cachetools==5.5.0
       - certifi==2024.12.14
+      - cffi==1.17.1
       - charset-normalizer==3.4.0
       - click==8.1.8
       - colorama==0.4.6
+      - curl-cffi==0.12.0
       - exchange-calendars==4.6
       - filelock==3.16.1
       - frozendict==2.4.6
@@ -57,6 +59,7 @@ dependencies:
       - plotly==5.24.1
       - protobuf==5.29.2
       - pyarrow==18.1.0
+      - pycparser==2.22
       - pydeck==0.9.1
       - pygments==2.18.0
       - pyluach==2.2.0
@@ -87,4 +90,5 @@ dependencies:
       - urllib3==2.3.0
       - watchdog==6.0.0
       - webencodings==0.5.1
-      - yfinance==0.2.51
+      - websockets==15.0.1
+      - yfinance==0.2.65
