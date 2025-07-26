@@ -40,15 +40,9 @@ def get_preds(symbol, model):
     return pred_candlestick
 
 
-def find_inverted_hammer_positions(df):
-    result = candlestick.inverted_hammer(df, target="result")
-    inverted_hammer_positions = df[result["result"]]
+def find_pattern(df, pattern):
+    result = getattr(candlestick, pattern)(df, target="result")
+    result["result"] = result["result"].fillna(False)
+    positions = df[result["result"]]
 
-    return inverted_hammer_positions.index, inverted_hammer_positions["Low"]
-
-
-def find_hammer_positions(df):
-    result = candlestick.hammer(df, target="result")
-    hammer_positions = df[result["result"]]
-
-    return hammer_positions.index, hammer_positions["Low"]
+    return positions.index, positions["Low"]
